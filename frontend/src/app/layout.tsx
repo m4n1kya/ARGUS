@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,14 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-black">
-        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center p-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-          <a href="/" className="px-6 py-2 rounded-full text-sm font-semibold text-white hover:bg-white/20 transition-colors">
-            Home
-          </a>
-          <a href="/map" className="px-6 py-2 rounded-full text-sm font-semibold text-white hover:bg-white/20 transition-colors">
-            Command Centre
-          </a>
-        </nav>
+        {/* Global floating navbar removed because the home page uses a custom GSAP header */}
         {children}
       </body>
     </html>

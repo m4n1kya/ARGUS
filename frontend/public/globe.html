@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARGUS Globe</title>
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      background-color: transparent; 
+      overflow: hidden; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      width: 100vw;
+    }
+    #root { 
+      width: 100%; 
+      height: 100%; 
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "react-dom": "https://esm.sh/react-dom@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "framer": "https://esm.sh/framer",
+        "framer-motion": "https://esm.sh/framer-motion@10.16.4"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import React from "react";
+    import { createRoot } from "react-dom/client";
+    import Globe from "https://framer.com/m/DepthGlobe-prod-5cOY4e.js";
+
+    const root = createRoot(document.getElementById("root"));
+    root.render(React.createElement(Globe, { style: { width: '100%', height: '100%' } }));
+  </script>
+</body>
+</html>

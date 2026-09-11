@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=argus_secure_password
       - POSTGRES_DB=argus_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - argus_db_data:/var/lib/postgresql/data
     restart: unless-stopped

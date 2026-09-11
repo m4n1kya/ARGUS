@@ -1,0 +1,305 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:wght@500;600&display=swap');
+
+:root {
+  /* Using Playfair Display as a high-quality drop-in replacement since Reforma 1918 font files are missing */
+  --main-font: "Playfair Display", serif;
+  --sub-font: "Poppins", sans-serif;
+  --color-black: #000;
+  --color-white: #fff;
+
+  --font-size-h1: 6.9444vw;
+  --font-size-desc-1: 1.1111vw;
+  --font-size-desc-2: 1.1111vw;
+  --font-size-header-text-1: 0.9722vw;
+  --font-size-btn-1: 1.9444vw;
+  --font-size-btn-2: 1.2500vw;
+  
+  --line-height-h1: 6.2500vw;
+  --line-height-desc-1: 1.1111vw;
+  --line-height-desc-2: 1.1111vw;
+  --line-height-header-text-1: 0.9722vw;
+  --line-height-btn-1: 1.9444vw;
+  --line-height-btn-2: 1.2500vw;
+}
+
+.title-h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: 700;
+  color: var(--color-white);
+  font-family: var(--main-font);
+}
+.desc-1 {
+  font-size: var(--font-size-desc-1);
+  line-height: var(--line-height-desc-1);
+  font-weight: 500;
+  color: var(--color-white);
+  font-family: var(--sub-font);
+}
+.desc-2 {
+  font-size: var(--font-size-desc-2);
+  line-height: var(--line-height-desc-2);
+  font-weight: 600;
+  color: var(--color-white);
+  font-family: var(--sub-font);
+}
+.header-text-1 {
+  font-size: var(--font-size-header-text-1);
+  line-height: var(--line-height-header-text-1);
+  font-weight: 500;
+  color: var(--color-white);
+  font-family: var(--sub-font);
+}
+.btn-1 {
+  font-size: var(--font-size-btn-2);
+  line-height: var(--line-height-btn-2);
+  font-weight: 500;
+  color: var(--color-white);
+  font-family: var(--sub-font);
+}
+.btn-2 {
+  font-size: var(--font-size-btn-1);
+  line-height: var(--line-height-btn-1);
+  font-weight: 600;
+  color: var(--color-white);
+  font-family: var(--sub-font);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+}
+
+img {
+  display: block;
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* extra long transition to hide blue autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:focus {
+  -webkit-transition: background-color 100000000000000000000000000000s 0s, color 100000000000000000000000000000s 0s;
+  transition: background-color 100000000000000000000000000000s 0s, color 100000000000000000000000000000s 0s;
+}
+
+/* remove Safari autofill*/
+input::-webkit-contacts-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+input[type=text],
+input[type=number],
+input[type=email],
+input[type=tel],
+textarea {
+  /* remove autofill blue background */
+  box-shadow: inset 0 0 0 150px rgba(255, 255, 255, 0) !important;
+  -webkit-box-shadow: inset 0 0 0 150px rgba(255, 255, 255, 0) !important;
+  -webkit-text-fill-color: currentColor !important;
+  font-size: 6.9444vw;
+  line-height: 10.4167vw;
+  background-color: transparent;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+body {
+  background: var(--color-black);
+  position: relative;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 2.2222vw;
+  max-width: none; /* override tailwind */
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 3.4722vw;
+  padding: 0 2.7778vw;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  .flex-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-self: start;
+    }
+    span {
+      display: flex;
+      &:last-child {
+        position: relative;
+        left: 0.9028vw;
+      }
+    }
+  }
+  .header-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style-type: none;
+    grid-column: 2;
+    &__item {
+      &:not(:last-child) {
+        margin-right: 2.5694vw;
+      }
+      cursor: pointer;
+    }
+  }
+}
+
+.hero {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+  .title-block {
+    position: relative;
+    
+    .title-h1 {
+      text-transform: uppercase;
+      span {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+      }
+      u {
+        text-decoration: none;
+        overflow-x: hidden;
+        overflow-y: hidden;
+      }
+      .title-row {
+        display: flex;
+      }
+      .title-charts-cont {
+        display: flex;
+        overflow: hidden;
+      }
+      .title-row-2 {
+        padding-left: 5.7639vw;
+      }
+      #ry {
+        margin-right: 2.5694vw;
+      }
+      #tells {
+        margin-right: 1.0417vw;
+      }
+      #a {
+        margin-right: 1.0417vw;
+      }
+    }
+    .first-desc {
+      position: absolute;
+      top: -2.7778vw;
+      right: 18.1944vw;
+      overflow: hidden;
+      display: flex;
+    }
+    .second-desc {
+      position: absolute;
+      bottom: -2.7778vw;
+      left: 19.4444vw;
+      overflow: hidden;
+      display: flex;
+    }
+  }
+  .copyright {
+    position: absolute;
+    bottom: 2.2222vw;
+    left: 2.7778vw;
+    overflow: hidden;
+    display: flex;
+  }
+  .scroll-to {
+    position: absolute;
+    bottom: 2.2222vw;
+    left: 50%;
+    transform: translateX(-50%);
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    &__row {
+      overflow: hidden;
+      display: flex;
+    }
+  }
+  .book-btn {
+    position: absolute;
+    bottom: 2.2222vw;
+    right: 2.2222vw;
+    width: 11.8056vw;
+    height: 11.8056vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__circle {
+      width: 11.8056vw;
+      height: 11.8056vw;
+      border: 1px solid var(--color-white);
+      border-radius: 100%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .btn-text {
+      width: 8.8889vw;
+      text-align: center;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}

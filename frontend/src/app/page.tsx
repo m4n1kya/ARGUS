@@ -1,63 +1,167 @@
+'use client';
+
+import { useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { CustomEase } from 'gsap/CustomEase';
 import Link from 'next/link';
-import { AlertCircle, Trash2, HardHat, TreeDeciduous, Zap } from 'lucide-react';
+import './landing.scss';
+
+gsap.registerPlugin(useGSAP, CustomEase);
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30 overflow-hidden relative">
-      {/* Background gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-900/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-900/20 blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 lg:pt-32 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
-            <span className="text-sm font-medium tracking-wide text-gray-300">v3.0 • Pilot Zone: VIT Bhopal University, Kotri Kalan</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 bg-gradient-to-br from-white via-gray-200 to-gray-500 bg-clip-text text-transparent leading-tight">
-            Autonomous Regional Geospatial Urban Sentinel
-          </h1>
-          
-          <p className="text-lg md:text-xl text-gray-400 mb-12 leading-relaxed max-w-2xl mx-auto">
-            A Multimodal Geospatial Intelligence Platform for Closed-Loop Urban Infrastructure & Public-Safety Management. Zero recurring cost. Local-first inference.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-            <Link 
-              href="/map" 
-              className="px-8 py-4 rounded-xl bg-white text-black font-semibold text-lg hover:bg-gray-200 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] transform hover:-translate-y-1"
-            >
-              Enter Command Centre
-            </Link>
-            <button className="px-8 py-4 rounded-xl border border-white/20 bg-white/5 text-white font-semibold text-lg hover:bg-white/10 backdrop-blur-sm transition-all transform hover:-translate-y-1">
-              Report Hazard
-            </button>
-          </div>
-        </div>
+  const root = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    // Isolate the global rem scaler to this page only
+    document.documentElement.style.fontSize = '6.9444444444vw';
+    return () => {
+      document.documentElement.style.fontSize = '';
+    };
+  }, []);
+  
+  // Refs for animated elements
+  const btnCircle = useRef(null);
+  const header = useRef(null);
+  const book = useRef(null);
+  const open = useRef(null);
+  const copy = useRef(null);
+  const scrollToRows = useRef<HTMLSpanElement[]>([]);
+  const btnText = useRef(null);
+  
+  const eve = useRef(null);
+  const ry = useRef(null);
+  const st_1 = useRef(null);
+  const reet = useRef(null);
+  
+  const tells = useRef(null);
+  const a = useRef(null);
+  const st_2 = useRef(null);
+  const ory = useRef(null);
 
-        <div className="mt-32">
-          <h2 className="text-2xl font-bold text-center mb-12 text-gray-300">Monitoring Five Real Urban Hazard Classes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {[
-              { icon: AlertCircle, title: 'Potholes & Road Damage', color: 'bg-red-500/10 border-red-500/20 text-red-400' },
-              { icon: Trash2, title: 'Garbage & Illegal Dumping', color: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400' },
-              { icon: HardHat, title: 'Unsafe Construction Sites', color: 'bg-orange-500/10 border-orange-500/20 text-orange-400' },
-              { icon: TreeDeciduous, title: 'Fallen Trees & Debris', color: 'bg-green-500/10 border-green-500/20 text-green-400' },
-              { icon: Zap, title: 'Exposed Electric Lines', color: 'bg-blue-500/10 border-blue-500/20 text-blue-400' },
-            ].map((hazard, i) => {
-              const Icon = hazard.icon;
-              return (
-                <div key={i} className={`p-6 rounded-2xl border bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors ${hazard.color.split(' ')[1]}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${hazard.color.split(' ')[0]}`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-semibold text-gray-200">{hazard.title}</h3>
-                </div>
-              );
-            })}
+  useGSAP(() => {
+    const customEaseIn = CustomEase.create('custom-ease-in', '0.52, 0.00, 0.48, 1.00');
+    const fourtyFrames = 1.3333333;
+    const fiftyFrames = 1.66666;
+    const twoFrames = 0.666666;
+    const fourFrames = 0.133333;
+    const sixFrames = 0.2;
+
+    const timeline = gsap.timeline();
+    timeline
+        .fromTo(btnCircle.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: fourtyFrames, ease: customEaseIn}, 0)
+        .fromTo(btnCircle.current, { scale: 0.417 }, { scale: 1, duration: fourtyFrames, ease: customEaseIn}, 0)
+        .fromTo(header.current, {y: '-3.4722vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, 0)
+        .fromTo(eve.current, {x: '18.7500vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, 0)
+        .fromTo(book.current, {y: '3.4722vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, twoFrames)
+        .fromTo(st_1.current, {x: '14.5833vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, twoFrames)
+        .fromTo(a.current, {x: '-8.3333vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, twoFrames)
+        .fromTo(ory.current, {x: '-22.2222vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, twoFrames)
+        .fromTo(open.current, {y: '2.0833vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(btnText.current, {y: '2.7778vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(ry.current, {x: '-13.8889vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(reet.current, {x: '-21.5278vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(tells.current, {x: '29.8611vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(st_2.current, {x: '13.1944vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, fourFrames)
+        .fromTo(copy.current, {y: '2.7778vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, sixFrames)
+        .fromTo(scrollToRows.current, {y: '3.4722vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, sixFrames)
+        .fromTo('.floating-badge', {autoAlpha: 0, y: 20}, {autoAlpha: 1, y: 0, duration: 1.0, stagger: 0.1, ease: customEaseIn}, twoFrames);
+  }, { scope: root });
+
+  const addToScrollRefs = (el: HTMLSpanElement) => {
+    if (el && !scrollToRows.current.includes(el)) {
+      scrollToRows.current.push(el);
+    }
+  };
+
+  return (
+    <main className="landing-container" ref={root}>
+      <header className="header" ref={header}>
+        <div className="flex-wrapper">
+          <div className="logo-wrap">
+            <span className="btn-2 tracking-widest text-xl">ARGUS</span>
           </div>
+          <ul className="header-menu">
+            <li className="header-menu__item header-text-1 hover:text-white/70 transition-colors">
+              <Link href="/map">Map</Link>
+            </li>
+            <li className="header-menu__item header-text-1 hover:text-white/70 transition-colors">
+              <Link href="/report">Report</Link>
+            </li>
+            <li className="header-menu__item header-text-1 hover:text-white/70 transition-colors">Documentation</li>
+            <li className="header-menu__item header-text-1 hover:text-white/70 transition-colors">System Status</li>
+            <li className="header-menu__item header-text-1 hover:text-white/70 transition-colors">Command</li>
+          </ul>
         </div>
-      </div>
+      </header>
+      
+      <section className="hero">
+        <video className="hero-video" autoPlay muted loop playsInline>
+          <source src="https://cdn.zajno.com/dev/codepen/fossil/fossil.mp4" type="video/mp4"/>
+        </video>
+        <div className="container">
+          <div className="title-block">
+            <div className="title-h1">
+              <div className="title-row title-row-1">
+                <div className="title-charts-cont" id="eve"><span ref={eve}>Eve</span></div>
+                <div className="title-charts-cont" id="ry"><span ref={ry}>ry</span></div>
+                <div className="title-charts-cont" id="st_1"><span ref={st_1}>st</span></div>
+                <div className="title-charts-cont" id="reet"><span ref={reet}>reet</span></div>
+              </div>
+              <div className="title-row title-row-2">
+                <div className="title-charts-cont" id="tells"><span ref={tells}>tells</span></div>
+                <div className="title-charts-cont" id="a"><span ref={a}>a</span></div>
+                <div className="title-charts-cont" id="st_2"><span ref={st_2}>st</span></div>
+                <div className="title-charts-cont" id="ory"><span ref={ory}>ory</span></div>
+              </div>
+            </div>
+            
+            <div className="first-desc">
+              <span className="desc-1" ref={book}>Real-time urban hazard detection</span>
+            </div>
+            <div className="second-desc">
+              <span className="desc-1" ref={open}>WE ARE LIVE!</span>
+            </div>
+          </div>
+      
+          <div className="copyright">
+            <span className="desc-1" ref={copy}>2026 ARGUS SYSTEM ©</span>
+          </div>
+          
+          <div className="scroll-to">
+            <div className="scroll-to__row">
+              <span className="desc-1" ref={addToScrollRefs}>Scroll to access</span>
+            </div>
+            <div className="scroll-to__row">
+              <span className="desc-1" ref={addToScrollRefs}>surveillance feed</span>
+            </div>
+          </div>
+          
+          <Link href="/map" className="book-btn">
+            <div className="book-btn__circle" ref={btnCircle}></div>
+            <div className="btn-text">
+              <span className="btn-1" ref={btnText}>
+                MAP
+              </span>
+            </div>
+          </Link>
+        </div>
+        
+        {/* Aesthetic Floating Hazard Quick-Links */}
+        <Link href="/map?hazard=garbage" className="floating-badge opacity-0 absolute top-[20%] right-[5%] px-[20px] py-[10px] bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white text-[12px] tracking-wider transition-all duration-300 flex items-center gap-2 font-sans z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+          <span className="w-[10px] h-[10px] rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></span> GARBAGE
+        </Link>
+        <Link href="/map?hazard=electrical" className="floating-badge opacity-0 absolute top-[30%] right-[5%] px-[20px] py-[10px] bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white text-[12px] tracking-wider transition-all duration-300 flex items-center gap-2 font-sans z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+          <span className="w-[10px] h-[10px] rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></span> WIRES
+        </Link>
+        
+        <Link href="/map?hazard=potholes" className="floating-badge opacity-0 absolute bottom-[25%] left-[5%] px-[20px] py-[10px] bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white text-[12px] tracking-wider transition-all duration-300 flex items-center gap-2 font-sans z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+          <span className="w-[10px] h-[10px] rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></span> POTHOLES
+        </Link>
+        <Link href="/map?hazard=construction" className="floating-badge opacity-0 absolute bottom-[15%] left-[5%] px-[20px] py-[10px] bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white text-[12px] tracking-wider transition-all duration-300 flex items-center gap-2 font-sans z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+          <span className="w-[10px] h-[10px] rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></span> CONSTRUCTION
+        </Link>
+      </section>
     </main>
   );
 }
