@@ -22,7 +22,6 @@ export default function Home() {
   // font-size is now driven by .landing-page { font-size: 6.9444vw } in landing.scss
   
   // Refs for animated elements
-  const btnCircle = useRef(null);
   const book = useRef(null);
   const open = useRef(null);
   const btnText = useRef(null);
@@ -47,8 +46,6 @@ export default function Home() {
 
     const timeline = gsap.timeline();
     timeline
-        .fromTo(btnCircle.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: fourtyFrames, ease: customEaseIn}, 0)
-        .fromTo(btnCircle.current, { scale: 0.417 }, { scale: 1, duration: fourtyFrames, ease: customEaseIn}, 0)
         .fromTo(eve.current, {x: '18.7500vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, 0)
         .fromTo(book.current, {y: '3.4722vw'}, {y: '0.0000vw', duration: fourtyFrames, ease: customEaseIn}, twoFrames)
         .fromTo(st_1.current, {x: '14.5833vw'}, { x: '0.0000vw', duration: fiftyFrames, ease: customEaseIn}, twoFrames)
@@ -150,7 +147,6 @@ export default function Home() {
           </div>
           
           <Link href="/map" className="book-btn">
-            <div className="book-btn__circle" ref={btnCircle}></div>
             <div className="btn-text" style={{ overflow: 'visible', zIndex: 10, marginTop: '8px' }}>
               <div ref={btnText} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
                 <img src="/map-logo-new.png" alt="Map Logo" style={{ width: '100%', height: 'auto', objectFit: 'contain', transform: 'scale(2.2)', filter: 'grayscale(100%) brightness(0.8) contrast(1.2)' }} />
