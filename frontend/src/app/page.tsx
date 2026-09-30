@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { CustomEase } from 'gsap/CustomEase';
@@ -11,6 +11,13 @@ gsap.registerPlugin(useGSAP, CustomEase);
 
 export default function Home() {
   const root = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => console.log("Video autoplay prevented:", e));
+    }
+  }, []);
   
   // font-size is now driven by .landing-page { font-size: 6.9444vw } in landing.scss
   
@@ -59,7 +66,7 @@ export default function Home() {
   return (
     <main className="landing-container landing-page" ref={root}>
       <section className="hero">
-        <video className="hero-video" autoPlay muted loop playsInline>
+        <video ref={videoRef} className="hero-video" autoPlay muted loop playsInline>
           <source src="https://cdn.zajno.com/dev/codepen/fossil/fossil.mp4" type="video/mp4"/>
         </video>
 
