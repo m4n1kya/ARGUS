@@ -9,6 +9,16 @@ import uuid
 import models, schemas
 from database import engine, get_db
 
+from sqlalchemy import text
+
+# Enable PostGIS extension for geoalchemy2
+try:
+    with engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+        conn.commit()
+except Exception as e:
+    print("Warning: Could not create postgis extension automatically.", e)
+
 # Create the database tables
 models.Base.metadata.create_all(bind=engine)
 
