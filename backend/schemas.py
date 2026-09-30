@@ -19,6 +19,7 @@ class HazardResponse(HazardBase):
     recurrence_count: int
     aurs_score: Optional[float]
     status: str
+    image_path: Optional[str]
     created_at: datetime
     updated_at: Optional[datetime]
 

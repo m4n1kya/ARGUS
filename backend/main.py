@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import time
@@ -23,6 +24,8 @@ app.add_middleware(
 
 UPLOAD_DIR = "backend/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/health")
 def health_check():
@@ -56,7 +59,8 @@ async def create_report(
     db_hazard = models.Hazard(
         hazard_class=hazard_class,
         location=wkt_point,
-        status="reported"
+        status="reported",
+        image_path=f"/uploads/{filename}" if image else None
     )
     db.add(db_hazard)
     db.commit()
@@ -73,6 +77,7 @@ async def create_report(
         "recurrence_count": db_hazard.recurrence_count,
         "aurs_score": db_hazard.aurs_score,
         "status": db_hazard.status,
+        "image_path": db_hazard.image_path,
         "created_at": db_hazard.created_at,
         "updated_at": db_hazard.updated_at
     }
@@ -98,7 +103,35 @@ def get_hazards(db: Session = Depends(get_db)):
             "recurrence_count": hazard.recurrence_count,
             "aurs_score": hazard.aurs_score,
             "status": hazard.status,
+            "image_path": hazard.image_path,
             "created_at": hazard.created_at,
             "updated_at": hazard.updated_at
         })
     return result
+
+@app.get("/hazards/{hazard_id}", response_model=schemas.HazardResponse)
+def get_hazard(hazard_id: int, db: Session = Depends(get_db)):
+    hazard_data = db.query(
+        models.Hazard,
+        func.ST_Y(models.Hazard.location).label('lat'),
+        func.ST_X(models.Hazard.location).label('lon')
+    ).filter(models.Hazard.id == hazard_id).first()
+    
+    if not hazard_data:
+        raise HTTPException(status_code=404, detail="Hazard not found")
+        
+    hazard, lat, lon = hazard_data
+    return {
+        "id": hazard.id,
+        "hazard_class": hazard.hazard_class,
+        "lat": lat,
+        "lon": lon,
+        "severity_score": hazard.severity_score,
+        "confidence": hazard.confidence,
+        "recurrence_count": hazard.recurrence_count,
+        "aurs_score": hazard.aurs_score,
+        "status": hazard.status,
+        "image_path": hazard.image_path,
+        "created_at": hazard.created_at,
+        "updated_at": hazard.updated_at
+    }

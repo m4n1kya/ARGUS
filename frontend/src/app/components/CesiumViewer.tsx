@@ -56,7 +56,7 @@ export default function CesiumViewer() {
           v.imageryLayers.removeAll();
           v.imageryLayers.addImageryProvider(provider);
         })
-        .catch((err) => console.warn("Failed to load Google Maps 2D Satellite:", err));
+        .catch(() => {});
     }
 
     // Start from space
@@ -123,7 +123,7 @@ export default function CesiumViewer() {
           });
         });
       } catch (error) {
-        console.warn("Backend unavailable, using cached/empty hazards:", error);
+        // Silently fail if backend is down
       }
     };
 
@@ -241,59 +241,133 @@ export default function CesiumViewer() {
   };
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-full flex-1">
       <div ref={cesiumContainer} className="absolute inset-0" />
       
+      {/* Geo Error Toast */}
       {geoError && (
-        <div className="absolute top-24 left-1/2 transform -translate-x-1/2 bg-red-500/90 text-white px-6 py-3 rounded-lg backdrop-blur-md shadow-2xl z-30 font-medium">
-          {geoError}
+        <div style={{
+          position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.15)',
+          color: 'rgba(255,255,255,0.8)', padding: '10px 20px', borderRadius: 4,
+          fontSize: 11, letterSpacing: '0.12em', fontFamily: 'monospace',
+          zIndex: 30, backdropFilter: 'blur(12px)', whiteSpace: 'nowrap',
+        }}>
+          ⚠ {geoError}
         </div>
       )}
 
-      {/* Layer Controls Placeholder */}
-      <div className="absolute top-[96px] right-[24px] bg-black/60 backdrop-blur-lg border border-white/10 rounded-xl p-[16px] z-20 flex flex-col gap-[12px] min-w-[140px]">
-        <h3 className="text-white/50 text-[12px] font-bold uppercase tracking-widest mb-[4px]">Layers</h3>
-        <div className="flex items-center gap-[12px] text-white/90 hover:text-white transition-colors text-[14px] font-medium whitespace-nowrap cursor-pointer">
-          <ImageIcon className="w-[16px] h-[16px] text-blue-400 flex-shrink-0" /> <span>Satellite</span>
-        </div>
-        <div className="flex items-center gap-[12px] text-white/90 hover:text-white transition-colors text-[14px] font-medium whitespace-nowrap cursor-pointer">
-          <MapIcon className="w-[16px] h-[16px] text-green-400 flex-shrink-0" /> <span>Terrain</span>
-        </div>
-        <div className="flex items-center gap-[12px] text-white/90 hover:text-white transition-colors text-[14px] font-medium whitespace-nowrap cursor-pointer">
-          <Layers className="w-[16px] h-[16px] text-orange-400 flex-shrink-0" /> <span>Road Context</span>
-        </div>
+      {/* ── LAYERS PANEL (right side) ── */}
+      <div style={{
+        position: 'absolute', top: 80, right: 20, zIndex: 20,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 10,
+        padding: '14px 16px', minWidth: 140,
+        display: 'flex', flexDirection: 'column', gap: 12,
+      }}>
+        <span style={{
+          fontSize: 9, fontWeight: 700, letterSpacing: '0.25em',
+          color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace',
+          textTransform: 'uppercase', marginBottom: 2,
+        }}>LAYERS</span>
+        {[
+          { icon: ImageIcon, label: 'SATELLITE' },
+          { icon: MapIcon,   label: 'TERRAIN'   },
+          { icon: Layers,    label: 'ROAD CTX'  },
+        ].map(({ icon: Icon, label }) => (
+          <div key={label} style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            cursor: 'pointer', color: 'rgba(255,255,255,0.55)',
+          }}>
+            <Icon style={{ width: 13, height: 13, flexShrink: 0 }} />
+            <span style={{ fontSize: 11, letterSpacing: '0.15em', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+              {label}
+            </span>
+          </div>
+        ))}
       </div>
-      
-      {/* Tracking Controls */}
-      <div className="absolute bottom-[32px] left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-[12px] md:gap-[16px] bg-black/50 p-[8px] rounded-full backdrop-blur-md border border-white/10 shadow-2xl">
+
+      {/* ── BOTTOM CONTROLS ── */}
+      <div style={{
+        position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 20, display: 'flex', alignItems: 'center', gap: 8,
+        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 10,
+        padding: '6px 8px',
+      }}>
+        {/* MY LOCATION / FOLLOWING / STOP */}
         {!isTracking ? (
-          <div 
+          <div
             onClick={startTracking}
-            className="px-[16px] md:px-[24px] py-[10px] bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-full shadow-lg transition-all flex items-center justify-center gap-[8px] whitespace-nowrap text-[14px] md:text-[16px] cursor-pointer"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '8px 18px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              background: 'transparent',
+              cursor: 'pointer', whiteSpace: 'nowrap',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
-            <Navigation className="w-[16px] h-[16px] flex-shrink-0" /> <span>MY LOCATION</span>
+            <Navigation style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.7)', flexShrink: 0 }} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.8)', fontFamily: 'monospace' }}>MY LOCATION</span>
           </div>
         ) : (
           <>
-            <div 
+            <div
               onClick={() => setIsFollowing(!isFollowing)}
-              className={`px-[16px] md:px-[24px] py-[10px] font-semibold rounded-full shadow-lg transition-all flex items-center justify-center gap-[8px] whitespace-nowrap text-[14px] md:text-[16px] cursor-pointer ${isFollowing ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white/80 hover:text-white'}`}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 18px',
+                border: `1px solid ${isFollowing ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.12)'}`,
+                background: isFollowing ? 'rgba(255,255,255,0.08)' : 'transparent',
+                cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
+              }}
             >
-              <Crosshair className="w-[16px] h-[16px] flex-shrink-0" /> <span>{isFollowing ? 'FOLLOWING' : 'FOLLOW ME'}</span>
+              <Crosshair style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.7)', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.8)', fontFamily: 'monospace' }}>
+                {isFollowing ? 'FOLLOWING' : 'FOLLOW ME'}
+              </span>
             </div>
-            <div 
+            <div
               onClick={stopTracking}
-              className="px-[16px] py-[10px] bg-red-600/80 hover:bg-red-500 text-white font-semibold rounded-full shadow-lg transition-all flex items-center justify-center gap-[8px] whitespace-nowrap text-[14px] md:text-[16px] cursor-pointer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 18px',
+                border: '1px solid rgba(255,255,255,0.12)',
+                background: 'transparent',
+                cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <StopCircle className="w-[16px] h-[16px] flex-shrink-0" /> <span>STOP</span>
+              <StopCircle style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.5)', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>STOP</span>
             </div>
           </>
         )}
-        <div 
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+
+        {/* RECENTER */}
+        <div
           onClick={handleRecenter}
-          className="px-[16px] md:px-[24px] py-[10px] bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full shadow-lg transition-all flex items-center justify-center gap-[8px] border border-white/10 whitespace-nowrap text-[14px] md:text-[16px] cursor-pointer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '8px 18px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'transparent',
+            cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          <MapPin className="w-[16px] h-[16px] flex-shrink-0" /> <span>RECENTER</span>
+          <MapPin style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.5)', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>RECENTER</span>
         </div>
       </div>
     </div>
