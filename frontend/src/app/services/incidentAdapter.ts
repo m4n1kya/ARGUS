@@ -12,7 +12,7 @@ export interface ArgusIncident {
   recurrenceCount: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://argus-aybo.onrender.com';
 
 export class IncidentAdapter {
   static async fetchAllIncidents(): Promise<ArgusIncident[]> {
