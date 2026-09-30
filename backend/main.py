@@ -6,8 +6,8 @@ from sqlalchemy import func
 import time
 import os
 import uuid
-from . import models, schemas
-from .database import engine, get_db
+import models, schemas
+from database import engine, get_db
 
 # Create the database tables
 models.Base.metadata.create_all(bind=engine)

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Enum
 from sqlalchemy.sql import func
 from geoalchemy2 import Geometry
-from .database import Base
+from database import Base
 import enum
 
 class HazardClass(str, enum.Enum):

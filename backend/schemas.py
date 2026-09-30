@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from .models import HazardClass
+from models import HazardClass
 
 class HazardBase(BaseModel):
     hazard_class: HazardClass
