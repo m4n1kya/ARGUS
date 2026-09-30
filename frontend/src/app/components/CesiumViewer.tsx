@@ -13,6 +13,7 @@ export default function CesiumViewer() {
   const [isTracking, setIsTracking] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
   
   const watchIdRef = useRef<number | null>(null);
   const userEntityRef = useRef<Cesium.Entity | null>(null);
@@ -33,56 +34,61 @@ export default function CesiumViewer() {
       Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN;
     }
 
-    const v = new Cesium.Viewer(cesiumContainer.current, {
-      animation: false,
-      timeline: false,
-      geocoder: false,
-      homeButton: false,
-      navigationHelpButton: false,
-      baseLayerPicker: false,
-      infoBox: false,
-      selectionIndicator: false,
-      sceneModePicker: false,
-      creditContainer: document.createElement('div'),
-      terrain: process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN ? 
-        Cesium.Terrain.fromWorldTerrain() : undefined,
-    });
+    try {
+      const v = new Cesium.Viewer(cesiumContainer.current, {
+        animation: false,
+        timeline: false,
+        geocoder: false,
+        homeButton: false,
+        navigationHelpButton: false,
+        baseLayerPicker: false,
+        infoBox: false,
+        selectionIndicator: false,
+        sceneModePicker: false,
+        creditContainer: document.createElement('div'),
+        terrain: process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN ? 
+          Cesium.Terrain.fromWorldTerrain() : undefined,
+      });
 
-    // Add Google Maps 2D Satellite with Labels (Asset ID 3830183)
-    if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
-      Cesium.IonImageryProvider.fromAssetId(3830183)
-        .then((provider) => {
-          // Remove the default Bing Maps base layer and use Google Maps
-          v.imageryLayers.removeAll();
-          v.imageryLayers.addImageryProvider(provider);
-        })
-        .catch(() => {});
-    }
-
-    // Start from space
-    v.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(pilotLon, pilotLat, 15000000),
-    });
-
-    // Fly in
-    v.camera.flyTo({
-      destination: pilotDestination,
-      orientation: {
-        heading: Cesium.Math.toRadians(0.0),
-        pitch: Cesium.Math.toRadians(-45.0),
-      },
-      duration: 4.0,
-      easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT
-    });
-
-    setViewer(v);
-
-    return () => {
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
+      // Add Google Maps 2D Satellite with Labels (Asset ID 3830183)
+      if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
+        Cesium.IonImageryProvider.fromAssetId(3830183)
+          .then((provider) => {
+            // Remove the default Bing Maps base layer and use Google Maps
+            v.imageryLayers.removeAll();
+            v.imageryLayers.addImageryProvider(provider);
+          })
+          .catch(() => {});
       }
-      v.destroy();
-    };
+
+      // Start from space
+      v.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(pilotLon, pilotLat, 15000000),
+      });
+
+      // Fly in
+      v.camera.flyTo({
+        destination: pilotDestination,
+        orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-45.0),
+        },
+        duration: 4.0,
+        easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT
+      });
+
+      setViewer(v);
+
+      return () => {
+        if (watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+        }
+        v.destroy();
+      };
+    } catch (err: any) {
+      console.error("Cesium Initialization Error:", err);
+      setInitError(err.message || String(err));
+    }
   }, []);
 
   // Fetch hazards
@@ -243,6 +249,15 @@ export default function CesiumViewer() {
 
   return (
     <div className="relative w-full h-full flex-1">
+      {initError && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
+          <div className="bg-red-900/30 border border-red-500 p-6 rounded-lg max-w-lg text-center">
+            <h3 className="text-red-400 font-bold mb-2 uppercase tracking-widest text-sm">Command Centre Offline</h3>
+            <p className="text-red-200 text-xs font-mono mb-4">{initError}</p>
+            <p className="text-white/60 text-xs font-mono">This usually happens if NEXT_PUBLIC_CESIUM_ION_TOKEN is missing in Vercel Environment Variables, or if Cesium assets failed to load.</p>
+          </div>
+        </div>
+      )}
       <div ref={cesiumContainer} className="absolute inset-0" />
       
       {/* Geo Error Toast */}
