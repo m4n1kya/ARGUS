@@ -159,7 +159,7 @@ export default function Home() {
         {/* ── LEFT COLUMN: POTHOLES (top) + CONSTRUCTION (bottom) ── */}
         <div style={{ position: 'absolute', left: '4%', bottom: '10%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
           <Link href="/globe?hazard=potholes" className="floating-badge opacity-0"
-            style={{ width: 160, height: 90, display: 'block', position: 'relative',
+            style={{ width: 200, height: 112, display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -171,7 +171,7 @@ export default function Home() {
           </Link>
 
           <Link href="/globe?hazard=construction" className="floating-badge opacity-0"
-            style={{ width: 160, height: 90, display: 'block', position: 'relative',
+            style={{ width: 200, height: 112, display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -186,7 +186,7 @@ export default function Home() {
         {/* ── RIGHT COLUMN: GARBAGE (top) + WIRES (bottom) ── */}
         <div style={{ position: 'absolute', right: '4%', top: '15%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
           <Link href="/globe?hazard=garbage" className="floating-badge opacity-0"
-            style={{ width: 160, height: 90, display: 'block', position: 'relative',
+            style={{ width: 200, height: 112, display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -198,7 +198,7 @@ export default function Home() {
           </Link>
 
           <Link href="/globe?hazard=electrical" className="floating-badge opacity-0"
-            style={{ width: 160, height: 90, display: 'block', position: 'relative',
+            style={{ width: 200, height: 112, display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
