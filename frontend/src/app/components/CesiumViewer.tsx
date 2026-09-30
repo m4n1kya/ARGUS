@@ -5,9 +5,53 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin, Navigation, Crosshair, StopCircle, Layers, Map as MapIcon, Image as ImageIcon } from 'lucide-react';
 
+const CESIUM_VERSION = '1.119';
+const CESIUM_CDN_BASE = `https://cdn.jsdelivr.net/npm/cesium@${CESIUM_VERSION}/Build/Cesium`;
+
+/**
+ * Programmatically loads Cesium from jsDelivr CDN.
+ * Sets CESIUM_BASE_URL BEFORE the script loads (critical requirement).
+ * Returns a Promise that resolves with the Cesium object.
+ */
+function loadCesiumFromCDN() {
+  return new Promise((resolve, reject) => {
+    // Already loaded?
+    if ((window as any).Cesium) {
+      resolve((window as any).Cesium);
+      return;
+    }
+
+    // 1. Set CESIUM_BASE_URL BEFORE the script loads — Cesium reads this on init
+    (window as any).CESIUM_BASE_URL = `${CESIUM_CDN_BASE}/`;
+
+    // 2. Load the CSS
+    if (!document.querySelector('link[data-cesium-css]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `${CESIUM_CDN_BASE}/Widgets/widgets.css`;
+      link.setAttribute('data-cesium-css', 'true');
+      document.head.appendChild(link);
+    }
+
+    // 3. Load the JS
+    const script = document.createElement('script');
+    script.src = `${CESIUM_CDN_BASE}/Cesium.js`;
+    script.async = true;
+    script.onload = () => {
+      if ((window as any).Cesium) {
+        resolve((window as any).Cesium);
+      } else {
+        reject(new Error('Cesium script loaded but window.Cesium is undefined'));
+      }
+    };
+    script.onerror = () => reject(new Error(`Failed to load Cesium from ${script.src}`));
+    document.head.appendChild(script);
+  });
+}
+
 export default function CesiumViewer() {
   const cesiumContainer = useRef(null);
-  const viewerRef = useRef(null); // Use ref, not state, so callbacks always have latest value
+  const viewerRef = useRef(null);
   const [viewerReady, setViewerReady] = useState(false);
 
   const [isTracking, setIsTracking] = useState(false);
@@ -28,24 +72,14 @@ export default function CesiumViewer() {
     isFollowingRef.current = isFollowing;
   }, [isFollowing]);
 
+  // Main initialization effect
   useEffect(() => {
     if (!cesiumContainer.current) return;
-
     let destroyed = false;
 
-    function getCesium() {
-      return (window as any).Cesium;
-    }
-
-    function initCesium() {
-      if (destroyed) return;
-      const C = getCesium();
-      if (!C) return;
-
-      try {
-        // Set CESIUM_BASE_URL to CDN before creating viewer
-        (window as any).CESIUM_BASE_URL =
-          'https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/';
+    loadCesiumFromCDN()
+      .then((C) => {
+        if (destroyed) return;
 
         if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
           C.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN;
@@ -94,27 +128,11 @@ export default function CesiumViewer() {
 
         viewerRef.current = v;
         setViewerReady(true);
-      } catch (err) {
-        console.error('Cesium init error:', err);
-        setInitError(err instanceof Error ? err.message : String(err));
-      }
-    }
-
-    // Poll until Cesium CDN script is loaded
-    if (getCesium()) {
-      initCesium();
-    } else {
-      const poll = setInterval(() => {
-        if (getCesium()) {
-          clearInterval(poll);
-          initCesium();
-        }
-      }, 100);
-      return () => {
-        destroyed = true;
-        clearInterval(poll);
-      };
-    }
+      })
+      .catch((err) => {
+        console.error('Cesium initialization failed:', err);
+        setInitError(err.message || String(err));
+      });
 
     return () => {
       destroyed = true;
@@ -306,8 +324,8 @@ export default function CesiumViewer() {
             </h3>
             <p className="text-red-200 text-xs font-mono mb-4">{initError}</p>
             <p className="text-white/60 text-xs font-mono">
-              Cesium assets failed to load. Check your NEXT_PUBLIC_CESIUM_ION_TOKEN
-              environment variable in Vercel.
+              Check your NEXT_PUBLIC_CESIUM_ION_TOKEN environment variable in Vercel,
+              or check your browser console for more details.
             </p>
           </div>
         </div>
