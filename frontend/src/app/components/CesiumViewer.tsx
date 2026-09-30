@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type * as Cesium from 'cesium';
 import { MapPin, Navigation, Crosshair, StopCircle, Layers, Map as MapIcon, Image as ImageIcon } from 'lucide-react';
 
 declare const window: any;
@@ -128,7 +129,7 @@ export default function CesiumViewer() {
         const hazards = await response.json();
         
         // Remove old hazards (keep user location entities intact by not using removeAll)
-        viewer.entities.values.forEach(entity => {
+        viewer.entities.values.forEach((entity: Cesium.Entity) => {
           if (entity.id.startsWith('hazard-')) {
             viewer.entities.remove(entity);
           }
