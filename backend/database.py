@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = "postgresql+psycopg://argus:argus_secure_password@localhost:5433/argus_db"
+import os
+
+# Check for environment variable first (for Render), fallback to local Postgres
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://argus:argus_secure_password@localhost:5433/argus_db")
 
 engine = create_engine(DATABASE_URL, echo=True)
 
