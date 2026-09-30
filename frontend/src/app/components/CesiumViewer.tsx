@@ -100,8 +100,22 @@ export default function CesiumViewer() {
         }
         v.destroy();
       };
+    } catch (err: any) {
+      console.error("Cesium Initialization Error:", err);
+      setInitError(err.message || String(err));
     }
-  }, []);
+  } // <-- Closes initCesium function
+
+  // Return a cleanup function for the useEffect itself (handles immediate cleanup if Cesium is ready instantly)
+  return () => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+    }
+    // Note: viewer destruction is handled by a separate unmount or the returned function of initCesium if we used it,
+    // but since initCesium is called conditionally, we'll let the component unmount handle viewer destruction if needed,
+    // or we can rely on the fact that this component doesn't usually unmount.
+  };
+}, []);
 
   // Fetch hazards
   useEffect(() => {
