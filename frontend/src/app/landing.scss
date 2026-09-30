@@ -274,6 +274,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      &:hover {
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+      }
       &__circle {
         width: 11.8056vw;
         height: 11.8056vw;
