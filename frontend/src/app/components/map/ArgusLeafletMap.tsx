@@ -7,10 +7,8 @@ import 'leaflet/dist/leaflet.css';
 
 import { DEFAULT_MAP_PROVIDER } from '../../services/mapProvider';
 import { IncidentAdapter, ArgusIncident } from '../../services/incidentAdapter';
-import { SatelliteMetadata } from '../../services/satelliteProvider';
 import { GeocodeResult } from '../../services/geocodingProvider';
 
-import SatelliteLayer from './SatelliteLayer';
 import IncidentLayer from './IncidentLayer';
 import UserLocationLayer from './UserLocationLayer';
 import HeatmapLayer from './HeatmapLayer';
@@ -217,15 +215,12 @@ function InlineNearMeControl({ radius, setRadius, userLocation }: { radius: numb
 }
 
 // ── Inline Status Bar ─────────────────────────────────────────────────────────
-function InlineStatusBar({ satelliteStatus, locationStatus, incidentCount }: { satelliteStatus: SatelliteMetadata | null; locationStatus: string; incidentCount: number }) {
+function InlineStatusBar({ isSatellite, locationStatus, incidentCount }: { isSatellite: boolean; locationStatus: string; incidentCount: number }) {
   const dot = (color: string) => <div className={`w-1.5 h-1.5 rounded-full ${color}`} />;
 
   const satNode = () => {
-    if (!satelliteStatus) return <span className="text-white/30">INIT</span>;
-    if (satelliteStatus.status === 'UNAVAILABLE') return <span className="text-red-400">OFFLINE</span>;
-    if (satelliteStatus.daysOld === 0) return <span className="text-green-400">TODAY</span>;
-    if (satelliteStatus.daysOld !== null) return <span className={satelliteStatus.daysOld <= 3 ? 'text-green-400' : 'text-yellow-400'}>{satelliteStatus.daysOld}d AGO</span>;
-    return <span className="text-white/40">LIVE</span>;
+    if (isSatellite) return <span className="text-white/40">ESRI LIVE</span>;
+    return <span className="text-white/30">OFF</span>;
   };
 
   const locNode = () => {
@@ -261,8 +256,7 @@ export default function ArgusLeafletMap() {
   const [locationStatus, setLocationStatus] = useState<'OFF'|'ACTIVE'|'DENIED'|'UNAVAILABLE'>('OFF');
   const watchIdRef = useRef<number | null>(null);
 
-  const [layers,          setLayers]          = useState({ satellite: true, incidents: true, heatmap: false });
-  const [satelliteStatus, setSatelliteStatus] = useState<SatelliteMetadata | null>(null);
+  const [layers,          setLayers]          = useState({ satellite: false, incidents: true, heatmap: false });
   const [isAddMode,       setIsAddMode]       = useState(false);
   const [nearMeRadius,    setNearMeRadius]    = useState<number | null>(null);
   const [flyToLocation,   setFlyToLocation]   = useState<GeocodeResult | null>(null);
@@ -340,9 +334,12 @@ export default function ArgusLeafletMap() {
         <ZoomControl position="bottomright" />
         <MapController flyTo={flyToLocation} />
 
-        <TileLayer url={DEFAULT_MAP_PROVIDER.url} attribution={DEFAULT_MAP_PROVIDER.attribution} maxZoom={DEFAULT_MAP_PROVIDER.maxZoom} />
+        <TileLayer 
+          url={layers.satellite ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' : DEFAULT_MAP_PROVIDER.url} 
+          attribution={layers.satellite ? 'Esri, Maxar, Earthstar Geographics' : DEFAULT_MAP_PROVIDER.attribution} 
+          maxZoom={19} 
+        />
 
-        {layers.satellite  && <SatelliteLayer onStatusChange={setSatelliteStatus} />}
         {userLocation      && <UserLocationLayer location={userLocation} />}
         {layers.incidents  && <IncidentLayer incidents={filteredIncidents} onIncidentSelect={setSelectedIncident} />}
         {layers.heatmap    && <HeatmapLayer incidents={incidents} />}
@@ -351,7 +348,7 @@ export default function ArgusLeafletMap() {
 
       {/* ── BOTTOM-LEFT: Status Bar ───────────────────────────────────────── */}
       <div className="absolute bottom-8 left-4 z-[1000] pointer-events-none">
-        <InlineStatusBar satelliteStatus={satelliteStatus} locationStatus={locationStatus} incidentCount={incidents.length} />
+        <InlineStatusBar isSatellite={layers.satellite} locationStatus={locationStatus} incidentCount={incidents.length} />
       </div>
 
       {/* ── BOTTOM-RIGHT: Action Buttons ─────────────────────────────────── */}
