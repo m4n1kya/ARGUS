@@ -91,7 +91,8 @@ export default function CesiumViewer() {
 
     const fetchHazards = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/hazards');
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://argus-aybo.onrender.com';
+        const response = await fetch(`${API_BASE}/hazards`);
         const hazards = await response.json();
         
         // Remove old hazards (keep user location entities intact by not using removeAll)

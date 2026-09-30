@@ -156,7 +156,7 @@ export default function Home() {
         
         {/* ── LEFT COLUMN: POTHOLES (top) + CONSTRUCTION (bottom) ── */}
         <div style={{ position: 'absolute', left: '4%', bottom: '10%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
-          <Link href="/globe?hazard=potholes" className="floating-badge hazard-card opacity-0"
+          <Link href="/map?hazard=potholes" className="floating-badge hazard-card opacity-0"
             style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
@@ -168,7 +168,7 @@ export default function Home() {
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>POTHOLES</span>
           </Link>
 
-          <Link href="/globe?hazard=construction" className="floating-badge hazard-card opacity-0"
+          <Link href="/map?hazard=construction" className="floating-badge hazard-card opacity-0"
             style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
@@ -183,7 +183,7 @@ export default function Home() {
 
         {/* ── RIGHT COLUMN: GARBAGE (top) + WIRES (bottom) ── */}
         <div style={{ position: 'absolute', right: '4%', top: '15%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
-          <Link href="/globe?hazard=garbage" className="floating-badge hazard-card opacity-0"
+          <Link href="/map?hazard=garbage" className="floating-badge hazard-card opacity-0"
             style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
@@ -195,7 +195,7 @@ export default function Home() {
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>GARBAGE</span>
           </Link>
 
-          <Link href="/globe?hazard=electrical" className="floating-badge hazard-card opacity-0"
+          <Link href="/map?hazard=electrical" className="floating-badge hazard-card opacity-0"
             style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
