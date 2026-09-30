@@ -58,6 +58,7 @@ export default function CesiumViewer() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [geoError, setGeoError] = useState(null);
   const [initError, setInitError] = useState(null);
+  const [activeLayer, setActiveLayer] = useState('ROAD');
 
   const watchIdRef = useRef(null);
   const userEntityRef = useRef(null);
@@ -405,18 +406,45 @@ export default function CesiumViewer() {
           LAYERS
         </span>
         {[
-          { icon: ImageIcon, label: 'SATELLITE' },
-          { icon: MapIcon, label: 'TERRAIN' },
-          { icon: Layers, label: 'ROAD CTX' },
-        ].map(({ icon: Icon, label }) => (
+          { icon: ImageIcon, label: 'SATELLITE', layerKey: 'SATELLITE' },
+          { icon: MapIcon, label: 'TERRAIN', layerKey: 'ROAD' },
+          { icon: Layers, label: 'ROAD CTX', layerKey: 'ROAD' },
+        ].map(({ icon: Icon, label, layerKey }) => (
           <div
             key={label}
+            onClick={() => {
+              const C = (window as any).Cesium;
+              const v = viewerRef.current;
+              if (!C || !v) return;
+              v.imageryLayers.removeAll();
+              if (layerKey === 'SATELLITE') {
+                v.imageryLayers.addImageryProvider(
+                  new C.UrlTemplateImageryProvider({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    credit: 'Esri, Maxar, Earthstar Geographics',
+                    maximumLevel: 19,
+                  })
+                );
+                setActiveLayer('SATELLITE');
+              } else {
+                v.imageryLayers.addImageryProvider(
+                  new C.OpenStreetMapImageryProvider({
+                    url: 'https://tile.openstreetmap.org/',
+                  })
+                );
+                setActiveLayer('ROAD');
+              }
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 10,
               cursor: 'pointer',
-              color: 'rgba(255,255,255,0.55)',
+              color: activeLayer === layerKey ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)',
+              padding: '4px 6px',
+              borderRadius: 6,
+              background: activeLayer === layerKey ? 'rgba(255,255,255,0.1)' : 'transparent',
+              transition: 'all 0.2s',
             }}
           >
             <Icon style={{ width: 13, height: 13, flexShrink: 0 }} />
