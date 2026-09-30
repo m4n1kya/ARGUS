@@ -302,4 +302,62 @@
       }
     }
   }
+
+  /* Desktop Default Styles for React elements */
+  .hazard-card {
+    width: 200px !important;
+    height: 112px !important;
+  }
+  .nav-menu-item {
+    padding: 7px 16px;
+    font-size: 12px;
+  }
+  .nav-menu-container {
+    flex-wrap: wrap;
+    padding: 0 10px;
+  }
+
+  /* MOBILE OPTIMIZATION */
+  @media (max-width: 768px) {
+    font-size: 12vw !important; /* Make middle text significantly bigger */
+    
+    .hazard-card {
+      width: 130px !important;
+      height: 73px !important;
+    }
+    
+    .nav-menu-item {
+      padding: 5px 10px;
+      font-size: 10px;
+    }
+    
+    .nav-menu-container {
+      top: 60px !important; /* Move nav down to not overlap with ARGUS logo */
+      gap: 4px !important;
+    }
+
+    .book-btn {
+      width: 25vw !important;
+      height: 25vw !important;
+      bottom: 20px !important;
+      right: 15px !important;
+
+      .btn-text {
+        width: 18vw !important;
+      }
+    }
+    
+    /* Ensure title scales nicely */
+    .hero .title-block {
+      transform: scale(1.2);
+    }
+    .hero .first-desc {
+      top: -3vw;
+      right: 15vw;
+    }
+    .hero .second-desc {
+      bottom: -3vw;
+      left: 15vw;
+    }
+  }
 }

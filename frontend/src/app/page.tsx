@@ -75,7 +75,7 @@ export default function Home() {
         }}>ARGUS</Link>
 
         {/* Floating bubble nav — centered */}
-        <div style={{
+        <div className="nav-menu-container" style={{
           position: 'absolute', top: 14, left: 0, right: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: 6, zIndex: 50, pointerEvents: 'none',
@@ -88,15 +88,13 @@ export default function Home() {
             { label: 'Command',       href: '#'       },
             { label: 'Globe',         href: '/globe'  },
           ].map(({ label, href }) => (
-            <Link key={label} href={href} style={{
+            <Link key={label} href={href} className="nav-menu-item" style={{
               pointerEvents: 'auto',
-              padding: '7px 16px',
               borderRadius: 999,
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.12)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
-              fontSize: 12,
               color: 'rgba(255,255,255,0.65)',
               textDecoration: 'none',
               letterSpacing: '0.04em',
@@ -158,8 +156,8 @@ export default function Home() {
         
         {/* ── LEFT COLUMN: POTHOLES (top) + CONSTRUCTION (bottom) ── */}
         <div style={{ position: 'absolute', left: '4%', bottom: '10%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
-          <Link href="/globe?hazard=potholes" className="floating-badge opacity-0"
-            style={{ width: 200, height: 112, display: 'block', position: 'relative',
+          <Link href="/globe?hazard=potholes" className="floating-badge hazard-card opacity-0"
+            style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -170,8 +168,8 @@ export default function Home() {
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>POTHOLES</span>
           </Link>
 
-          <Link href="/globe?hazard=construction" className="floating-badge opacity-0"
-            style={{ width: 200, height: 112, display: 'block', position: 'relative',
+          <Link href="/globe?hazard=construction" className="floating-badge hazard-card opacity-0"
+            style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -185,8 +183,8 @@ export default function Home() {
 
         {/* ── RIGHT COLUMN: GARBAGE (top) + WIRES (bottom) ── */}
         <div style={{ position: 'absolute', right: '4%', top: '15%', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 10 }}>
-          <Link href="/globe?hazard=garbage" className="floating-badge opacity-0"
-            style={{ width: 200, height: 112, display: 'block', position: 'relative',
+          <Link href="/globe?hazard=garbage" className="floating-badge hazard-card opacity-0"
+            style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
@@ -197,8 +195,8 @@ export default function Home() {
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>GARBAGE</span>
           </Link>
 
-          <Link href="/globe?hazard=electrical" className="floating-badge opacity-0"
-            style={{ width: 200, height: 112, display: 'block', position: 'relative',
+          <Link href="/globe?hazard=electrical" className="floating-badge hazard-card opacity-0"
+            style={{ display: 'block', position: 'relative',
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
