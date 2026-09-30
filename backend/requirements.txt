@@ -5,3 +5,4 @@ geoalchemy2
 psycopg[binary]
 pydantic
 pydantic-settings
+python-multipart
