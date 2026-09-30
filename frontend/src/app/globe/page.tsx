@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Script from 'next/script';
 import { AlertCircle, Trash2, HardHat, TreeDeciduous, Zap, ArrowLeft } from 'lucide-react';
 
 const CesiumViewer = dynamic(() => import('../components/CesiumViewer'), {
@@ -24,6 +25,8 @@ const HAZARD_FILTERS = [
 export default function MapPage() {
   return (
     <main className="h-screen w-full bg-black relative overflow-hidden" style={{ paddingTop: 48 }}>
+      <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+      <Script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js" strategy="beforeInteractive" />
       
       {/* ── TOP HUD BAR ── */}
       <div

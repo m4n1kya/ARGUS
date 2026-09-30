@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import * as Cesium from 'cesium';
-import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { MapPin, Navigation, Crosshair, StopCircle, Layers, Map as MapIcon, Image as ImageIcon } from 'lucide-react';
+
+declare const window: any;
 
 export default function CesiumViewer() {
   const cesiumContainer = useRef<HTMLDivElement>(null);
@@ -26,13 +26,28 @@ export default function CesiumViewer() {
   
   useEffect(() => {
     if (cesiumContainer.current === null) return;
-
-    (window as any).CESIUM_BASE_URL = '/cesium';
-
-    // Set Ion Token (if available)
-    if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
-      Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN;
+    
+    // Wait for CDN script to load
+    if (!window.Cesium) {
+      const checkInterval = setInterval(() => {
+        if (window.Cesium) {
+          clearInterval(checkInterval);
+          initCesium();
+        }
+      }, 100);
+      return () => clearInterval(checkInterval);
+    } else {
+      initCesium();
     }
+
+    function initCesium() {
+      const Cesium = window.Cesium;
+      window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/';
+
+      // Set Ion Token (if available)
+      if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
+        Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN;
+      }
 
     try {
       const v = new Cesium.Viewer(cesiumContainer.current, {
@@ -85,9 +100,6 @@ export default function CesiumViewer() {
         }
         v.destroy();
       };
-    } catch (err: any) {
-      console.error("Cesium Initialization Error:", err);
-      setInitError(err.message || String(err));
     }
   }, []);
 
@@ -108,7 +120,9 @@ export default function CesiumViewer() {
           }
         });
 
-        const colorMap: Record<string, Cesium.Color> = {
+        const Cesium = window.Cesium;
+        if (!Cesium) return;
+        const colorMap: Record<string, any> = {
           'pothole': Cesium.Color.RED,
           'garbage': Cesium.Color.YELLOW,
           'construction': Cesium.Color.ORANGE,
@@ -141,6 +155,8 @@ export default function CesiumViewer() {
 
   const updateUserLocation = (lat: number, lon: number, accuracy: number, heading: number | null) => {
     if (!viewer) return;
+    const Cesium = window.Cesium;
+    if (!Cesium) return;
     const position = Cesium.Cartesian3.fromDegrees(lon, lat);
 
     if (!userEntityRef.current) {
