@@ -96,20 +96,36 @@ export default function CesiumViewer() {
           selectionIndicator: false,
           sceneModePicker: false,
           creditContainer: document.createElement('div'),
+          // Don't add default imagery — we'll add our own below
+          baseLayer: false,
           terrain: process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN
             ? C.Terrain.fromWorldTerrain()
             : undefined,
         });
 
+        // Add imagery: Google Maps via Ion if token exists, else free OpenStreetMap
         if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
           C.IonImageryProvider.fromAssetId(3830183)
             .then((provider) => {
               if (!destroyed) {
-                v.imageryLayers.removeAll();
                 v.imageryLayers.addImageryProvider(provider);
               }
             })
-            .catch(() => {});
+            .catch(() => {
+              // Fallback to OSM if Ion fails
+              v.imageryLayers.addImageryProvider(
+                new C.OpenStreetMapImageryProvider({
+                  url: 'https://tile.openstreetmap.org/',
+                })
+              );
+            });
+        } else {
+          // No Ion token — use free OpenStreetMap tiles
+          v.imageryLayers.addImageryProvider(
+            new C.OpenStreetMapImageryProvider({
+              url: 'https://tile.openstreetmap.org/',
+            })
+          );
         }
 
         v.camera.setView({
