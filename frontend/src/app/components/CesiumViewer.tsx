@@ -58,7 +58,7 @@ export default function CesiumViewer() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [geoError, setGeoError] = useState(null);
   const [initError, setInitError] = useState(null);
-  const [activeLayer, setActiveLayer] = useState('ROAD');
+  const [activeLayer, setActiveLayer] = useState('ROAD CTX');
 
   const watchIdRef = useRef(null);
   const userEntityRef = useRef(null);
@@ -425,14 +425,14 @@ export default function CesiumViewer() {
                     maximumLevel: 19,
                   })
                 );
-                setActiveLayer('SATELLITE');
+                setActiveLayer(label);
               } else {
                 v.imageryLayers.addImageryProvider(
                   new C.OpenStreetMapImageryProvider({
                     url: 'https://tile.openstreetmap.org/',
                   })
                 );
-                setActiveLayer('ROAD');
+                setActiveLayer(label);
               }
             }}
             style={{
@@ -440,10 +440,10 @@ export default function CesiumViewer() {
               alignItems: 'center',
               gap: 10,
               cursor: 'pointer',
-              color: activeLayer === layerKey ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)',
+              color: activeLayer === label ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)',
               padding: '4px 6px',
               borderRadius: 6,
-              background: activeLayer === layerKey ? 'rgba(255,255,255,0.1)' : 'transparent',
+              background: activeLayer === label ? 'rgba(255,255,255,0.1)' : 'transparent',
               transition: 'all 0.2s',
             }}
           >
