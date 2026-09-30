@@ -130,7 +130,6 @@ export default function MapPage() {
                 padding: '5px 12px',
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 4,
                 borderRadius: 6,
               cursor: 'pointer',
                 transition: 'all 0.2s',

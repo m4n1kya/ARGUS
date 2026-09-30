@@ -43,7 +43,7 @@ export default function SatelliteLayer({ onStatusChange }: { onStatusChange: (st
         layerRef.current.setZIndex(5);
       } else {
         // Just update URL if it changed
-        if (layerRef.current._url !== config.url) {
+        if ((layerRef.current as any)._url !== config.url) {
           layerRef.current.setUrl(config.url);
         }
       }
