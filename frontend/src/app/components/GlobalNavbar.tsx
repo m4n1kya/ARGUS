@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: 'Map',           href: '/map'    },
   { label: 'Report',        href: '/report' },
   { label: 'Documentation', href: '#'       },
+  { label: 'Status',        href: '#'       },
   { label: 'Globe',         href: '/globe'  },
 ];
 
