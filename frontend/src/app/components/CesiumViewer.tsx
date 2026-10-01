@@ -118,7 +118,7 @@ export default function CesiumViewer() {
                 new C.UrlTemplateImageryProvider({
                   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                   credit: 'Esri, Maxar, Earthstar Geographics',
-                  maximumLevel: 19,
+                  maximumLevel: 18,
                 })
               );
             });
@@ -128,7 +128,7 @@ export default function CesiumViewer() {
             new C.UrlTemplateImageryProvider({
               url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
               credit: 'Esri, Maxar, Earthstar Geographics',
-              maximumLevel: 19,
+              maximumLevel: 18,
             })
           );
         }
@@ -146,6 +146,9 @@ export default function CesiumViewer() {
           duration: 4.0,
           easingFunction: C.EasingFunction.CUBIC_IN_OUT,
         });
+
+        // Prevent zooming past imagery limits
+        v.scene.screenSpaceCameraController.minimumZoomDistance = 150;
 
         viewerRef.current = v;
         setViewerReady(true);
@@ -426,7 +429,7 @@ export default function CesiumViewer() {
                   new C.UrlTemplateImageryProvider({
                     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                     credit: 'Esri, Maxar, Earthstar Geographics',
-                    maximumLevel: 19,
+                    maximumLevel: 18,
                   })
                 );
                 setActiveLayer(label);

@@ -327,6 +327,7 @@ export default function ArgusLeafletMap() {
       <MapContainer
         center={[23.07551, 76.84978]}
         zoom={15}
+        maxZoom={18}
         zoomControl={false}
         className="w-full h-full z-0"
         style={{ background: '#0a0a0a', flex: 1 }}
@@ -337,7 +338,7 @@ export default function ArgusLeafletMap() {
         <TileLayer 
           url={layers.satellite ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' : DEFAULT_MAP_PROVIDER.url} 
           attribution={layers.satellite ? 'Esri, Maxar, Earthstar Geographics' : DEFAULT_MAP_PROVIDER.attribution} 
-          maxZoom={19} 
+          maxZoom={18} 
         />
 
         {userLocation      && <UserLocationLayer location={userLocation} />}
