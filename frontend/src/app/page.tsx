@@ -69,7 +69,7 @@ export default function Home() {
 
         {/* ARGUS — plain text top left */}
         <Link href="/" style={{
-          position: 'absolute', top: 22, left: 24, zIndex: 50,
+          position: 'absolute', top: 22, left: '4%', zIndex: 50,
           fontSize: 13, fontWeight: 700, letterSpacing: '0.35em',
           color: '#fff', textDecoration: 'none', fontFamily: 'monospace',
         }}>ARGUS</Link>
