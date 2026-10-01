@@ -32,7 +32,7 @@ export default function GlobalNavbar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: '0 4vw',
         background: 'rgba(0,0,0,0.55)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
