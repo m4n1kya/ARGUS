@@ -72,13 +72,13 @@ export default function ReportPage() {
         <h1 className="text-xl font-bold tracking-wider">NEW HAZARD REPORT</h1>
       </header>
 
-      <div className="max-w-md mx-auto p-4 md:p-6 mt-4">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="max-w-4xl mx-auto p-4 md:p-8 mt-4 md:mt-12">
+        <form onSubmit={handleSubmit} className="space-y-8 md:space-y-12">
           
           {/* Hazard Type Selector */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label className="text-sm font-semibold tracking-widest text-gray-400 uppercase">1. Hazard Classification</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
               {[
                 { id: 'pothole', label: 'Pothole / Road', color: 'bg-red-500/20 border-red-500/50 text-red-400' },
                 { id: 'garbage', label: 'Garbage / Dump', color: 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400' },
@@ -106,9 +106,9 @@ export default function ReportPage() {
           </div>
 
           {/* Photographic Evidence */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label className="text-sm font-semibold tracking-widest text-gray-400 uppercase">2. Photographic Evidence</label>
-            <div className="relative border-2 border-dashed border-white/20 rounded-2xl p-8 hover:bg-white/5 transition-colors group cursor-pointer text-center">
+            <div className="relative border-2 border-dashed border-white/20 rounded-2xl p-8 md:p-16 hover:bg-white/5 transition-colors group cursor-pointer text-center">
               <input 
                 type="file" 
                 accept="image/*" 
