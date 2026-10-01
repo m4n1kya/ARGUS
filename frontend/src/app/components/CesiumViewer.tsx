@@ -58,7 +58,7 @@ export default function CesiumViewer() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [geoError, setGeoError] = useState(null);
   const [initError, setInitError] = useState(null);
-  const [activeLayer, setActiveLayer] = useState('ROAD CTX');
+  const [activeLayer, setActiveLayer] = useState('SATELLITE');
 
   const watchIdRef = useRef(null);
   const userEntityRef = useRef(null);
@@ -104,7 +104,7 @@ export default function CesiumViewer() {
             : undefined,
         });
 
-        // Add imagery: Google Maps via Ion if token exists, else free OpenStreetMap
+        // Add imagery: Google Maps via Ion if token exists, else free Esri Satellite
         if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
           C.IonImageryProvider.fromAssetId(3830183)
             .then((provider) => {
@@ -113,18 +113,22 @@ export default function CesiumViewer() {
               }
             })
             .catch(() => {
-              // Fallback to OSM if Ion fails
+              // Fallback to Esri if Ion fails
               v.imageryLayers.addImageryProvider(
-                new C.OpenStreetMapImageryProvider({
-                  url: 'https://tile.openstreetmap.org/',
+                new C.UrlTemplateImageryProvider({
+                  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                  credit: 'Esri, Maxar, Earthstar Geographics',
+                  maximumLevel: 19,
                 })
               );
             });
         } else {
-          // No Ion token — use free OpenStreetMap tiles
+          // No Ion token — use free Esri Satellite tiles
           v.imageryLayers.addImageryProvider(
-            new C.OpenStreetMapImageryProvider({
-              url: 'https://tile.openstreetmap.org/',
+            new C.UrlTemplateImageryProvider({
+              url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+              credit: 'Esri, Maxar, Earthstar Geographics',
+              maximumLevel: 19,
             })
           );
         }

@@ -256,7 +256,7 @@ export default function ArgusLeafletMap() {
   const [locationStatus, setLocationStatus] = useState<'OFF'|'ACTIVE'|'DENIED'|'UNAVAILABLE'>('OFF');
   const watchIdRef = useRef<number | null>(null);
 
-  const [layers,          setLayers]          = useState({ satellite: false, incidents: true, heatmap: false });
+  const [layers,          setLayers]          = useState({ satellite: true, incidents: true, heatmap: false });
   const [isAddMode,       setIsAddMode]       = useState(false);
   const [nearMeRadius,    setNearMeRadius]    = useState<number | null>(null);
   const [flyToLocation,   setFlyToLocation]   = useState<GeocodeResult | null>(null);
