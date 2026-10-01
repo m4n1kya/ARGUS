@@ -8,8 +8,6 @@ const NAV_LINKS = [
   { label: 'Map',           href: '/map'    },
   { label: 'Report',        href: '/report' },
   { label: 'Documentation', href: '#'       },
-  { label: 'System Status', href: '#'       },
-  { label: 'Command',       href: '#'       },
   { label: 'Globe',         href: '/globe'  },
 ];
 
@@ -82,22 +80,26 @@ export default function GlobalNavbar() {
       </ul>
 
       {/* Live indicator */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-        <span style={{
-          width: 6, height: 6, borderRadius: '50%',
-          background: '#4ade80',
-          boxShadow: '0 0 6px #4ade80',
-          display: 'inline-block',
-          animation: 'argus-pulse 2s infinite',
-        }} />
-        <span style={{
-          fontSize: 10,
-          letterSpacing: '0.2em',
-          color: 'rgba(255,255,255,0.3)',
-          fontFamily: 'var(--font-geist-mono, monospace)',
-          textTransform: 'uppercase',
-        }}>LIVE</span>
-      </div>
+      {(pathname === '/map' || pathname === '/globe') ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: '#4ade80',
+            boxShadow: '0 0 6px #4ade80',
+            display: 'inline-block',
+            animation: 'argus-pulse 2s infinite',
+          }} />
+          <span style={{
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            color: 'rgba(255,255,255,0.3)',
+            fontFamily: 'var(--font-geist-mono, monospace)',
+            textTransform: 'uppercase',
+          }}>LIVE</span>
+        </div>
+      ) : (
+        <div style={{ width: 45 }} /> /* placeholder to keep flex alignment */
+      )}
 
       <style>{`
         @keyframes argus-pulse {
