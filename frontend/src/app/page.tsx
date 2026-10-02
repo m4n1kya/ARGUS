@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { CustomEase } from 'gsap/CustomEase';
 import Link from 'next/link';
+import Image from 'next/image';
 import './landing.scss';
 
 gsap.registerPlugin(useGSAP, CustomEase);
@@ -160,9 +161,9 @@ export default function Home() {
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
-            <img src="/hazard-images/potholes.webp" alt="Potholes"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute', top: 0, left: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
+            <Image src="/hazard-images/potholes.webp" alt="Potholes" fill sizes="(max-width: 768px) 130px, 200px"
+              style={{ objectFit: 'cover', zIndex: 0 }} priority unoptimized />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', zIndex: 1 }} />
             <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 10, fontWeight: 700, letterSpacing: '0.25em',
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>POTHOLES</span>
           </Link>
@@ -172,9 +173,9 @@ export default function Home() {
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
-            <img src="/hazard-images/construction.webp" alt="Construction"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute', top: 0, left: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
+            <Image src="/hazard-images/construction.webp" alt="Construction" fill sizes="(max-width: 768px) 130px, 200px"
+              style={{ objectFit: 'cover', zIndex: 0 }} priority unoptimized />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', zIndex: 1 }} />
             <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 10, fontWeight: 700, letterSpacing: '0.25em',
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>CONSTRUCTION</span>
           </Link>
@@ -187,9 +188,9 @@ export default function Home() {
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
-            <img src="/hazard-images/garbage.webp" alt="Garbage"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute', top: 0, left: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
+            <Image src="/hazard-images/garbage.webp" alt="Garbage" fill sizes="(max-width: 768px) 130px, 200px"
+              style={{ objectFit: 'cover', zIndex: 0 }} priority unoptimized />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', zIndex: 1 }} />
             <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 10, fontWeight: 700, letterSpacing: '0.25em',
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>GARBAGE</span>
           </Link>
@@ -199,9 +200,9 @@ export default function Home() {
               borderRadius: 12, cursor: 'pointer', textDecoration: 'none',
               transition: 'all 0.25s', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
           >
-            <img src="/hazard-images/debris.webp" alt="Wires"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute', top: 0, left: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
+            <Image src="/hazard-images/debris.webp" alt="Wires" fill sizes="(max-width: 768px) 130px, 200px"
+              style={{ objectFit: 'cover', zIndex: 0 }} priority unoptimized />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', zIndex: 1 }} />
             <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 10, fontWeight: 700, letterSpacing: '0.25em',
               color: 'rgba(255,255,255,0.9)', fontFamily: 'monospace', textTransform: 'uppercase', zIndex: 2 }}>WIRES</span>
           </Link>
