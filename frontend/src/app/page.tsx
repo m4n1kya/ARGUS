@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import {
   ReportStorageService,
-  AiVerificationRecord
+  AiVerificationRecord,
+  sanitizeModelDisplayName
 } from './services/reportStorage';
 import './landing.scss';
 
@@ -432,7 +433,7 @@ export default function Home() {
                       {/* Bottom Info on Image */}
                       <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-[#cbd5e1]">
                         <span className="truncate max-w-[65%]">
-                          Model: {item.model_name || item.model_id || 'YOLOv8s'}
+                          Model: {sanitizeModelDisplayName(item.model_name, item.category)}
                         </span>
                         <span>
                           {new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}

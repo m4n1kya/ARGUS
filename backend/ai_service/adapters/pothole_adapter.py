@@ -87,21 +87,7 @@ class PotholePeterHddAdapter(BaseModelAdapter):
             self.is_loaded = True
             return True
 
-        # Fallback to PyTorch
-        if not os.path.exists(self.checkpoint_path):
-            raise FileNotFoundError(f"Pothole checkpoint not found: {self.checkpoint_path}")
-
-        from ultralytics import YOLO
-        self.yolo_model = YOLO(self.checkpoint_path)
-        try:
-            self.yolo_model.to(self.device)
-        except Exception:
-            self.device = "cpu"
-            self.yolo_model.to("cpu")
-
-        self.is_onnx = False
-        self.is_loaded = True
-        return True
+        raise FileNotFoundError(f"Pothole ONNX checkpoint not found: {onnx_path}")
 
     def unload_model(self) -> None:
         """Evict model from memory."""
@@ -289,23 +275,8 @@ class PotholePeterHddAdapter(BaseModelAdapter):
                 confidence_threshold=threshold,
             )
         else:
-            import torch
-            with torch.inference_mode():
-                results = self.yolo_model.predict(
-                    source=tensor_or_img,
-                    imgsz=self.entry.input_resolution[0],
-                    conf=threshold,
-                    device=self.device,
-                    verbose=False,
-                )
-            t2 = time.perf_counter()
-            inference_ms = (t2 - t1) * 1000.0
-            detections = self.postprocess(
-                raw_output=results,
-                original_size=(orig_w, orig_h),
-                preprocess_meta={},
-                confidence_threshold=threshold,
-            )
+            inference_ms = 0.0
+            detections = []
 
         t3 = time.perf_counter()
         postprocess_ms = (t3 - t2) * 1000.0

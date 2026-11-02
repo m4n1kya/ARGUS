@@ -116,31 +116,10 @@ def validate_image_payload(image_bytes: bytes, filename: str) -> str:
 # -------------------------------------------------------------
 @app.on_event("startup")
 def startup_background_warmup():
-    """Asynchronously warm up any missing checkpoints in a background daemon thread."""
-    def _download():
-        try:
-            ai_service = UnifiedAiService()
-            weights_dir = ai_service.weights_dir
-            from ai_service.service import CHECKPOINT_DIRECT_URLS
-            for fname, url in CHECKPOINT_DIRECT_URLS.items():
-                target_path = os.path.join(weights_dir, fname)
-                if not os.path.exists(target_path):
-                    logger.info("Background warming up missing model checkpoint %s...", fname)
-                    import urllib.request
-                    temp_p = target_path + ".tmp"
-                    req = urllib.request.Request(url, headers={"User-Agent": "ARGUS-Vision-Inference/2.0"})
-                    with urllib.request.urlopen(req, timeout=300) as resp, open(temp_p, "wb") as f_out:
-                        while chunk := resp.read(65536):
-                            f_out.write(chunk)
-                    if os.path.exists(target_path):
-                        os.remove(target_path)
-                    os.rename(temp_p, target_path)
-                    logger.info("Successfully background-warmed checkpoint %s", fname)
-        except Exception as e:
-            logger.warning("Background checkpoint warmup non-critical notice: %s", e)
-
-    import threading
-    threading.Thread(target=_download, daemon=True, name="checkpoint_warmup").start()
+    """Perform lightweight startup validation and auto-reconciliation."""
+    from ai_service.memory_guard import apply_thread_and_runtime_limits, release_system_memory
+    apply_thread_and_runtime_limits()
+    release_system_memory("startup")
 
     # Automatically reconcile any zombie verifications left from container restarts
     try:
@@ -155,6 +134,10 @@ def startup_background_warmup():
                 rec.assessment = "EVIDENCE_FOUND" if rec.detections and len(rec.detections) > 0 else "NOT_DETECTED"
                 rec.completed_at = datetime.now(timezone.utc)
                 rec.explanation = "Historical record synchronized and finalized during system recovery."
+                if not rec.model_id:
+                    prim = get_primary_model_for_category(rec.category)
+                    if prim:
+                        rec.model_id = prim.model_id
             db_session.commit()
     except Exception as cleanup_err:
         logger.warning("Startup verification reconciliation notice: %s", cleanup_err)
@@ -316,7 +299,8 @@ def get_verifications(
 
     results = []
     for r in records:
-        entry = get_model_entry(r.model_id) if r.model_id else None
+        entry = get_model_entry(r.model_id) if r.model_id else get_primary_model_for_category(r.category)
+        resolved_name = entry.model_name if entry else (get_primary_model_for_category(r.category).model_name if get_primary_model_for_category(r.category) else "YOLO Real-Time Object Detector")
         
         # Detections
         det_list = []
@@ -350,7 +334,7 @@ def get_verifications(
             processing_status=r.processing_status,
             assessment=r.assessment,
             model_id=r.model_id,
-            model_name=entry.model_name if entry else (r.model_id or "Pending"),
+            model_name=resolved_name,
             model_version=r.model_version or (entry.model_version if entry else "1.0.0"),
             started_at=r.started_at,
             completed_at=r.completed_at,
@@ -378,7 +362,8 @@ def get_verification_detail(verification_id: str, db: Session = Depends(get_db))
     if not r:
         raise HTTPException(status_code=404, detail="AI verification record not found.")
 
-    entry = get_model_entry(r.model_id) if r.model_id else None
+    entry = get_model_entry(r.model_id) if r.model_id else get_primary_model_for_category(r.category)
+    resolved_name = entry.model_name if entry else (get_primary_model_for_category(r.category).model_name if get_primary_model_for_category(r.category) else "YOLO Real-Time Object Detector")
 
     det_list = []
     for d in r.detections:
@@ -411,7 +396,7 @@ def get_verification_detail(verification_id: str, db: Session = Depends(get_db))
         processing_status=r.processing_status,
         assessment=r.assessment,
         model_id=r.model_id,
-        model_name=entry.model_name if entry else (r.model_id or "Pending"),
+        model_name=resolved_name,
         model_version=r.model_version or (entry.model_version if entry else "1.0.0"),
         started_at=r.started_at,
         completed_at=r.completed_at,
@@ -438,10 +423,13 @@ def get_verification_status(verification_id: str, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="AI verification record not found.")
 
     det_count = len(r.detections) if r.detections else 0
+    stage = "COMPLETED" if r.processing_status in ("COMPLETED", "NEEDS_REVIEW", "FAILED") else "ANALYSING IMAGE"
     return schemas.AiVerificationStatusResponse(
         verification_id=r.id,
         report_id=r.report_id,
         processing_status=r.processing_status,
+        status=r.processing_status,
+        current_stage=stage,
         assessment=r.assessment,
         category=r.category,
         model_id=r.model_id,

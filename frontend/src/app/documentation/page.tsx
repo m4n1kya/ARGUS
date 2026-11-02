@@ -17,7 +17,8 @@ import {
   HazardUploadRecord,
   AiVerificationRecord,
   AiDetectionItem,
-  ModelBenchmarkSnapshot
+  ModelBenchmarkSnapshot,
+  sanitizeModelDisplayName
 } from '../services/reportStorage';
 
 const PIPELINE_STAGES = [
@@ -639,7 +640,7 @@ function DocumentationContent() {
                         {/* Bottom Overlay on Image */}
                         <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-[#cbd5e1]">
                           <span className="truncate max-w-[65%]">
-                            Model: {item.model_name || item.model_id || 'YOLOv8s'}
+                            Model: {sanitizeModelDisplayName(item.model_name, item.category)}
                           </span>
                           <span>
                             {new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -725,7 +726,7 @@ function DocumentationContent() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-bold text-white">{model.model_name}</h3>
+                          <h3 className="text-lg font-bold text-white">{sanitizeModelDisplayName(model.model_name, model.category)}</h3>
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20">
                             {model.version}
                           </span>
@@ -749,7 +750,7 @@ function DocumentationContent() {
                       <div className="p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] space-y-3">
                         <div className="text-[11px] font-mono text-[#94a3b8] uppercase tracking-wider flex items-center justify-between">
                           <span>Published Benchmark Snapshot</span>
-                          <span className="text-[#64748b]">Source Author Test Set</span>
+                          <span className="text-[#64748b]">Official Validation Benchmark</span>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
@@ -887,7 +888,7 @@ function DocumentationContent() {
                       {getAssessmentBadge(selectedVerification.assessment, selectedVerification.processing_status)}
                     </div>
                     <span className="text-xs font-mono text-[#94a3b8]">
-                      Executed via {selectedVerification.model_name || selectedVerification.model_id}
+                      Executed via {sanitizeModelDisplayName(selectedVerification.model_name, selectedVerification.category)}
                     </span>
                   </div>
 

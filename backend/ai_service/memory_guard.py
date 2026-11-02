@@ -5,12 +5,13 @@ Provides explicit glibc malloc_trim, PyTorch thread capping, and memory eviction
 
 import os
 import gc
+import sys
 import ctypes
 import logging
 
 logger = logging.getLogger("argus.memory_guard")
 
-# Set OS-level thread limits before PyTorch or OpenMP creates thread pools
+# Set OS-level thread limits before OpenMP creates thread pools
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
@@ -19,14 +20,14 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 
 def apply_thread_and_runtime_limits():
-    """Cap PyTorch and numerical libraries to single-threaded execution to prevent memory multiplication."""
-    try:
-        import torch
-        torch.set_num_threads(1)
-        torch.set_num_interop_threads(1)
-        logger.info("PyTorch thread pools successfully constrained to single thread (memory-conserving mode).")
-    except Exception as e:
-        logger.debug("Torch thread config skipped: %s", e)
+    """Cap numerical libraries to single-threaded execution to prevent memory multiplication."""
+    if "torch" in sys.modules:
+        try:
+            torch = sys.modules["torch"]
+            torch.set_num_threads(1)
+            torch.set_num_interop_threads(1)
+        except Exception:
+            pass
 
 
 def release_system_memory(label: str = "general"):
@@ -34,13 +35,14 @@ def release_system_memory(label: str = "general"):
     # 1. Python GC
     collected = gc.collect()
 
-    # 2. PyTorch cache
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-    except Exception:
-        pass
+    # 2. PyTorch cache if already in memory
+    if "torch" in sys.modules:
+        try:
+            torch = sys.modules["torch"]
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
 
     # 3. Linux glibc malloc_trim (forces heap memory release back to Linux kernel)
     trimmed = False

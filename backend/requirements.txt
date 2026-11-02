@@ -9,6 +9,3 @@ python-multipart
 pillow
 opencv-python-headless
 onnxruntime
-torch
-torchvision
-ultralytics

@@ -9,8 +9,6 @@ import logging
 from typing import Dict, Any, Optional
 from PIL import Image
 
-import torch
-
 from ai_service.model_registry import (
     MODEL_REGISTRY,
     get_model_entry,
@@ -32,13 +30,7 @@ logger = logging.getLogger("argus.ai_service")
 
 DEFAULT_WEIGHTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weights")
 
-CHECKPOINT_DIRECT_URLS = {
-    "pothole_peterhdd_yolov8s.pt": "https://huggingface.co/peterhdd/pothole-detection-yolov8/resolve/main/best.pt",
-    "construction_hasnatz_rf_detr.onnx": "https://huggingface.co/hasnatz/v-safe-rf-detr/resolve/main/inference_model.onnx",
-    "waste_siyad23_yolo11n.pt": "https://raw.githubusercontent.com/siyad23/waste-sorting-model/main/weights/best.pt",
-    "indian_road_hazard_yolo11n.onnx": "https://raw.githubusercontent.com/VivekVagale/road-hazard/gh-pages/models/yolo11n.onnx",
-    "powerline_mtyolo_nano.pt": "https://raw.githubusercontent.com/phd-benel/PowerLine-MTYOLO/main/PowerLine-MTYOLO-NANO-150Epochs.pt",
-}
+CHECKPOINT_DIRECT_URLS = {}
 
 
 class UnifiedAiService:
@@ -74,14 +66,6 @@ class UnifiedAiService:
         override = os.getenv("AI_DEVICE")
         if override:
             return override.lower()
-
-        if torch.cuda.is_available():
-            try:
-                device_name = torch.cuda.get_device_name(0)
-                logger.info("NVIDIA CUDA detected: %s", device_name)
-                return "cuda:0"
-            except Exception:
-                pass
         return "cpu"
 
     def get_adapter(self, model_id: str) -> BaseModelAdapter:

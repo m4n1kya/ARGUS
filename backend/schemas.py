@@ -53,6 +53,8 @@ class AiVerificationStatusResponse(BaseModel):
     verification_id: str
     report_id: Optional[int] = None
     processing_status: str  # QUEUED, PROCESSING, COMPLETED, NEEDS_REVIEW, FAILED
+    status: Optional[str] = None
+    current_stage: Optional[str] = None
     assessment: str         # EVIDENCE_FOUND, NOT_DETECTED, INCONCLUSIVE
     category: str
     model_id: Optional[str] = None

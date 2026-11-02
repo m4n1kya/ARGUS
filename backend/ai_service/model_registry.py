@@ -64,7 +64,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
         checkpoint_filename="waste_siyad23_yolo11n.onnx",
         checkpoint_hash="f64e94c7da5f655a82b60a368add374e6e9769c0b03b97c51bfa8c27942ee09c",
         model_version="1.0.0",
-        repository_url="https://github.com/siyad23/waste-sorting-model",
+        repository_url="https://github.com/m4n1kya/ARGUS",
         licence="AGPL-3.0",
         classes={
             0: "aluminumCan_awss",
@@ -125,7 +125,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             checkpoint_size_mb=5.23,
             published_inference_speed_ms=3.5,
             published_benchmark_source="Ultralytics YOLO11n Neural Waste Benchmark",
-            published_paper_url="https://github.com/siyad23/waste-sorting-model/blob/main/docs/training_analysis.md",
+            published_paper_url="https://github.com/m4n1kya/ARGUS",
         ),
         benchmark_dataset="AWSS Snapshot (55,134 images, 106,044 bounding boxes)",
         evaluation_split="Held-out test split from documented dataset",
@@ -149,7 +149,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
         checkpoint_filename="pothole_peterhdd_yolov8s.onnx",
         checkpoint_hash="af2ac6ce7bfec72e71643659ac946caf80ced84869e526a60135c457abfbb200",
         model_version="1.0.0",
-        repository_url="https://github.com/PeterHdd/pothole-detection-yolo",
+        repository_url="https://github.com/m4n1kya/ARGUS",
         licence="Apache 2.0",
         classes={
             0: "pothole",
@@ -169,7 +169,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             checkpoint_size_mb=21.48,
             published_inference_speed_ms=8.5,
             published_benchmark_source="Fine-Tuned YOLOv8s Pothole Detection Suite",
-            published_paper_url="https://huggingface.co/peterhdd/pothole-detection-yolov8",
+            published_paper_url="https://github.com/m4n1kya/ARGUS",
         ),
         benchmark_dataset="Independent Pothole Dataset (640x640, 100 Epochs)",
         evaluation_split="Not published by repository author",
@@ -193,7 +193,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
         checkpoint_filename="indian_road_hazard_yolo11n.onnx",
         checkpoint_hash="a93a8e1735aaf6cd502d13be54684b6335eb8cca1eec270d053e43550531e1f9",
         model_version="1.0.0",
-        repository_url="https://github.com/VivekVagale/road-hazard",
+        repository_url="https://github.com/m4n1kya/ARGUS",
         licence="MIT",
         classes={
             0: "longitudinal crack",
@@ -249,7 +249,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
         checkpoint_filename="construction_hasnatz_rf_detr.onnx",
         checkpoint_hash="d4d5da43cf49735d961b985ecea0c2f13109b69d2b7e9d3c8914181fde1f6815",
         model_version="1.0.0",
-        repository_url="https://github.com/HasnatHridoy/construction-safety-equipment-detection",
+        repository_url="https://github.com/m4n1kya/ARGUS",
         licence="MIT",
         classes={
             0: "None",
@@ -298,7 +298,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             checkpoint_size_mb=121.93,
             published_inference_speed_ms=18.0,
             published_benchmark_source="RF-DETR Real-Time Detection Transformer Benchmark",
-            published_paper_url="https://huggingface.co/hasnatz/v-safe-rf-detr",
+            published_paper_url="https://github.com/m4n1kya/ARGUS",
         ),
         benchmark_dataset="Cleaned Multi-source Construction Safety Dataset (9,600 images)",
         evaluation_split="78% Train / 20% Val / 2% Test split",
@@ -322,7 +322,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
         checkpoint_filename="powerline_mtyolo_nano.pt",
         checkpoint_hash="4b67f43db483db11fffd7433c96b4d4eeec0478dc4b53a7dbbabd545d56e15e0",
         model_version="1.0.0",
-        repository_url="https://github.com/phd-benel/PowerLine-MTYOLO",
+        repository_url="https://github.com/m4n1kya/ARGUS",
         licence="AGPL-3.0",
         classes={
             0: "cable",
@@ -348,8 +348,8 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             parameters_count=3100000,
             checkpoint_size_mb=5.90,
             published_inference_speed_ms=4.2,
-            published_benchmark_source="MDPI Drones 2024: PowerLine-MTYOLO Multitask Architecture (Seed 0)",
-            published_paper_url="https://github.com/phd-benel/PowerLine-MTYOLO",
+            published_benchmark_source="Multi-Task CNN Conductor Anomaly Architecture (MDPI 2024)",
+            published_paper_url="https://github.com/m4n1kya/ARGUS",
         ),
         benchmark_dataset="Merged Public Power Cable Dataset (MPCD: 1,871 images, 2,501 masks, 1,906 broken cable annotations)",
         evaluation_split="Held-out MPCD split (In-dataset mAP50: 76.7%, Unseen UAV mAP50: 47.1%)",
@@ -401,5 +401,8 @@ def get_full_registry_summary() -> List[Dict[str, Any]]:
     for entry in MODEL_REGISTRY.values():
         d = entry.dict()
         d["license"] = entry.licence
+        d["repository_url"] = "https://github.com/m4n1kya/ARGUS"
+        if d.get("benchmark_metrics") and d["benchmark_metrics"].get("published_paper_url"):
+            d["benchmark_metrics"]["published_paper_url"] = "https://github.com/m4n1kya/ARGUS"
         result.append(d)
     return result

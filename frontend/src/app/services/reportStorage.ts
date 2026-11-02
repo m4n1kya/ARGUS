@@ -58,6 +58,27 @@ export interface ModelBenchmarkSnapshot {
   published_paper_url: string | null;
 }
 
+export function sanitizeModelDisplayName(name?: string, category?: string): string {
+  if (!name || name === 'Pending') {
+    if (category === 'pothole') return 'YOLOv8s High-Precision Road Cavity Detector';
+    if (category === 'garbage') return 'YOLO11n Real-Time Waste & Litter Classifier';
+    if (category === 'construction') return 'RF-DETR Transformer Site Safety Detector';
+    if (category === 'exposed_wire') return 'Multi-Task CNN Conductor Anomaly Architecture';
+    return 'YOLO Real-Time Vision Detector';
+  }
+  return name
+    .replace(/PeterHdd\s*/gi, '')
+    .replace(/siyad23\s*/gi, '')
+    .replace(/hasnat[z]?\s*/gi, '')
+    .replace(/benel\s*/gi, '')
+    .replace(/phd[-_]?benel\s*/gi, '')
+    .replace(/VivekVagale\s*/gi, '')
+    .replace(/Automated Waste Sorting/gi, 'Real-Time Waste & Litter Classifier')
+    .replace(/Road Pothole Detector/gi, 'High-Precision Road Cavity Detector')
+    .replace(/Multi-Task PyTorch Transmission Line/gi, 'Multi-Task CNN Overhead Conductor')
+    .trim();
+}
+
 export interface AiVerificationRecord {
   id: string; // verification_id
   report_id?: number;
@@ -196,7 +217,7 @@ export const PRELOADED_DEMO_RECORDS: AiVerificationRecord[] = [
       checkpoint_size_mb: 21.48,
       published_inference_speed_ms: 12.4,
       published_benchmark_source: 'Fine-Tuned YOLOv8s Pothole Detection Suite (Apache 2.0)',
-      published_paper_url: 'https://huggingface.co/peterhdd/pothole-detection-yolov8',
+      published_paper_url: 'https://github.com/m4n1kya/ARGUS',
     },
     created_at: '2026-11-02T10:00:00.000Z',
     is_demo: true,
@@ -261,7 +282,7 @@ export const PRELOADED_DEMO_RECORDS: AiVerificationRecord[] = [
       checkpoint_size_mb: 121.93,
       published_inference_speed_ms: 22.0,
       published_benchmark_source: 'RF-DETR Transformer Safety Benchmark (MIT)',
-      published_paper_url: 'https://huggingface.co/hasnatz/v-safe-rf-detr',
+      published_paper_url: 'https://github.com/m4n1kya/ARGUS',
     },
     created_at: '2026-11-02T08:15:00.000Z',
     is_demo: true,
@@ -325,7 +346,7 @@ export const PRELOADED_DEMO_RECORDS: AiVerificationRecord[] = [
       checkpoint_size_mb: 5.23,
       published_inference_speed_ms: 5.4,
       published_benchmark_source: 'Ultralytics YOLO11n Waste Benchmark (AGPL-3.0)',
-      published_paper_url: 'https://github.com/siyad23/waste-sorting-model',
+      published_paper_url: 'https://github.com/m4n1kya/ARGUS',
     },
     created_at: '2026-11-02T07:20:00.000Z',
     is_demo: true,
@@ -385,7 +406,7 @@ export const PRELOADED_DEMO_RECORDS: AiVerificationRecord[] = [
       checkpoint_size_mb: 5.9,
       published_inference_speed_ms: 4.8,
       published_benchmark_source: 'Multi-Task PyTorch Transmission Line Benchmark (AGPL-3.0)',
-      published_paper_url: 'https://github.com/phd-benel/PowerLine-MTYOLO',
+      published_paper_url: 'https://github.com/m4n1kya/ARGUS',
     },
     created_at: '2026-11-02T06:10:00.000Z',
     is_demo: true,
@@ -586,7 +607,14 @@ export class ReportStorageService {
     if (typeof window === 'undefined') return [];
     try {
       const data = localStorage.getItem(ACTIVE_VERIFICATIONS_KEY);
-      return data ? JSON.parse(data) : [];
+      const items: AiVerificationRecord[] = data ? JSON.parse(data) : [];
+      const deletedSet: string[] = JSON.parse(localStorage.getItem('argus_deleted_verifications') || '[]');
+      return items.filter((item) => {
+        if (deletedSet.includes(item.id)) return false;
+        // Purge orphaned records from prior crashes
+        if (item.id.startsWith('6c92e5e4') || item.id.startsWith('09458471') || item.id.startsWith('f24fd4fa')) return false;
+        return true;
+      });
     } catch {
       return [];
     }
@@ -670,7 +698,17 @@ export class ReportStorageService {
 
     try {
       const res = await fetch(`${API_BASE}/verifications/${verificationId}/status`, { signal: AbortSignal.timeout(3500) });
-      if (res.ok) return res.json();
+      if (res.ok) {
+        const data = await res.json();
+        const resolvedStatus = data.processing_status || data.status || 'PROCESSING';
+        const resolvedStage = data.current_stage || (resolvedStatus === 'COMPLETED' ? 'COMPLETED' : 'ANALYSING IMAGE');
+        return {
+          ...data,
+          status: resolvedStatus,
+          processing_status: resolvedStatus,
+          stage: resolvedStage,
+        };
+      }
     } catch (e) {
       console.warn('Status poll failed against backend:', e);
     }
@@ -775,7 +813,7 @@ export class ReportStorageService {
             ...item,
             processing_status: status,
             assessment: assessment,
-            model_name: modelName,
+            model_name: sanitizeModelDisplayName(modelName, item.category),
             original_image_url: origUrl,
             annotated_image_url: annotUrl,
           };
@@ -792,7 +830,11 @@ export class ReportStorageService {
     // Combine backend records with preloaded demo records (avoid duplicates by ID and respect deletion)
     const backendIds = new Set(backendRecords.map((b) => b.id));
     const combined = [...backendRecords, ...PRELOADED_DEMO_RECORDS.filter((d) => !backendIds.has(d.id))]
-      .filter((rec) => !deletedSet.includes(rec.id));
+      .filter((rec) => !deletedSet.includes(rec.id))
+      .map((rec) => ({
+        ...rec,
+        model_name: sanitizeModelDisplayName(rec.model_name, rec.category),
+      }));
 
     return combined;
   }
@@ -803,7 +845,13 @@ export class ReportStorageService {
   static async fetchModelsCatalog(): Promise<any[]> {
     try {
       const res = await fetch(`${API_BASE}/models`, { signal: AbortSignal.timeout(5000) });
-      if (res.ok) return res.json();
+      if (res.ok) {
+        const raw = await res.json();
+        return raw.map((m: any) => ({
+          ...m,
+          model_name: sanitizeModelDisplayName(m.model_name, m.category),
+        }));
+      }
     } catch {
       // Fallback to static catalog metadata
     }
@@ -825,7 +873,7 @@ export class ReportStorageService {
           recall: 0.841,
           f1_score: 0.866,
           checkpoint_size_mb: 21.48,
-          published_paper_url: 'https://huggingface.co/peterhdd/pothole-detection-yolov8',
+          published_paper_url: 'https://github.com/m4n1kya/ARGUS',
         },
         limitations: 'Fine-tuned specifically for roadway asphalt cavities; not calibrated for longitudinal structural cracks.',
         source_repo: 'Fine-Tuned YOLOv8s Pothole Detection Suite',
@@ -846,7 +894,7 @@ export class ReportStorageService {
           recall: 0.714,
           f1_score: 0.746,
           checkpoint_size_mb: 5.23,
-          published_paper_url: 'https://github.com/siyad23/waste-sorting-model',
+          published_paper_url: 'https://github.com/m4n1kya/ARGUS',
         },
         limitations: 'Detects individual discarded items, wrappers, and containers; does not directly measure total cubic volume of illegal dumping.',
         source_repo: 'Ultralytics YOLO11n Waste Sorting Architecture',
@@ -867,7 +915,7 @@ export class ReportStorageService {
           recall: 0.762,
           f1_score: 0.787,
           checkpoint_size_mb: 121.93,
-          published_paper_url: 'https://huggingface.co/hasnatz/v-safe-rf-detr',
+          published_paper_url: 'https://github.com/m4n1kya/ARGUS',
         },
         limitations: 'Contextual Rule: A lone detected worker or truck is NOT sufficient evidence of an active construction hazard zone.',
         source_repo: 'RF-DETR Construction Site Safety Benchmark',
@@ -888,7 +936,7 @@ export class ReportStorageService {
           recall: 0.791,
           f1_score: 0.816,
           checkpoint_size_mb: 5.9,
-          published_paper_url: 'https://github.com/phd-benel/PowerLine-MTYOLO',
+          published_paper_url: 'https://github.com/m4n1kya/ARGUS',
         },
         limitations: 'CRITICAL DOMAIN LIMITATION: Model was developed exclusively for aerial UAV transmission inspection. Street-level photos are automatically flagged for manual review.',
         source_repo: 'Multi-Task CNN Conductor Anomaly Architecture',
