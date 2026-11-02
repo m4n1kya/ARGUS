@@ -84,8 +84,8 @@ export default function Home() {
           {[
             { label: 'Map',           href: '/map'    },
             { label: 'Report',        href: '/report' },
-            { label: 'Documentation', href: '#'       },
-            { label: 'Status',        href: '#'       },
+            { label: 'Documentation', href: '/documentation' },
+            { label: 'Status',        href: '/status' },
             { label: 'Globe',         href: '/globe'  },
           ].map(({ label, href }) => (
             <Link key={label} href={href} className="nav-menu-item" style={{

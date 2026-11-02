@@ -21,7 +21,7 @@ const HAZARD_FILTERS = [
   { key: 'exposed_wire', icon: Zap,            label: 'EXP. WIRES'  },
 ];
 
-export default function MapPage() {
+export default function GlobePage() {
   return (
     <main className="h-screen w-full bg-black relative overflow-hidden" style={{ paddingTop: 48 }}>
       
@@ -29,7 +29,7 @@ export default function MapPage() {
       <div
         style={{
           position: 'absolute',
-          top: 0,
+          top: 48,
           left: 0,
           right: 0,
           zIndex: 20,
@@ -85,30 +85,28 @@ export default function MapPage() {
             </p>
           </div>
 
-          {/* Live indicator */}
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#4ade80',
-                boxShadow: '0 0 6px #4ade80',
-                animation: 'pulse 2s infinite',
-              }}
-            />
-            <span
-              style={{
-                fontSize: 10,
-                color: 'rgba(255,255,255,0.35)',
-                letterSpacing: '0.2em',
-                fontFamily: 'var(--font-geist-mono, monospace)',
-                textTransform: 'uppercase',
-              }}
-            >
-              LIVE
-            </span>
-          </div>
+          {/* Switch to 2D Map shortcut */}
+          <Link
+            href="/map"
+            style={{
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              fontSize: 11,
+              fontFamily: 'var(--font-geist-mono, monospace)',
+              color: '#90CAF9',
+              textDecoration: 'none',
+              letterSpacing: '0.08em',
+              transition: 'all 0.2s',
+            }}
+          >
+            SWITCH TO 2D MAP
+          </Link>
         </div>
 
         {/* Row 2 — Hazard Filter Chips */}

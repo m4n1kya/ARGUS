@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
-  { label: 'Map',           href: '/map'    },
-  { label: 'Report',        href: '/report' },
-  { label: 'Documentation', href: '#'       },
-  { label: 'Status',        href: '#'       },
-  { label: 'Globe',         href: '/globe'  },
+  { label: 'Map',           href: '/map'           },
+  { label: 'Report',        href: '/report'        },
+  { label: 'Documentation', href: '/documentation' },
+  { label: 'Status',        href: '/status'        },
+  { label: 'Globe',         href: '/globe'         },
 ];
 
 export default function GlobalNavbar() {
@@ -57,27 +57,47 @@ export default function GlobalNavbar() {
       {/* Nav links */}
       <ul style={{
         position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: 0, height: '100%',
-        display: 'flex', alignItems: 'center', gap: 32, listStyle: 'none', margin: 0, padding: 0
+        display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.2vw, 32px)', listStyle: 'none', margin: 0, padding: 0
       }}>
-        {NAV_LINKS.map(({ label, href }) => (
-          <li key={label}>
-            <Link
-              href={href}
-              style={{
-                fontSize: 13,
-                color: hovered === label ? '#fff' : 'rgba(255,255,255,0.5)',
-                textDecoration: 'none',
-                letterSpacing: '0.02em',
-                fontFamily: 'var(--font-geist-sans, sans-serif)',
-                transition: 'color 0.2s',
-              }}
-              onMouseEnter={() => setHovered(label)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {label}
-            </Link>
-          </li>
-        ))}
+        {NAV_LINKS.map(({ label, href }) => {
+          const isActive = pathname === href;
+          return (
+            <li key={label}>
+              <Link
+                href={href}
+                style={{
+                  fontSize: 'clamp(11px, 1.2vw, 13px)',
+                  color: isActive || hovered === label ? '#fff' : 'rgba(255,255,255,0.5)',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  letterSpacing: '0.02em',
+                  fontFamily: 'var(--font-geist-sans, sans-serif)',
+                  transition: 'color 0.2s',
+                  position: 'relative',
+                  padding: '4px 0',
+                }}
+                onMouseEnter={() => setHovered(label)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                {label}
+                {isActive && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 1.5,
+                      background: '#90CAF9',
+                      borderRadius: 1,
+                      boxShadow: '0 0 6px rgba(144,202,249,0.6)',
+                    }}
+                  />
+                )}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Live indicator */}

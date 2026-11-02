@@ -145,3 +145,23 @@ def get_hazard(hazard_id: int, db: Session = Depends(get_db)):
         "created_at": hazard.created_at,
         "updated_at": hazard.updated_at
     }
+
+@app.delete("/hazards/{hazard_id}")
+def delete_hazard(hazard_id: int, db: Session = Depends(get_db)):
+    db_hazard = db.query(models.Hazard).filter(models.Hazard.id == hazard_id).first()
+    if not db_hazard:
+        raise HTTPException(status_code=404, detail="Hazard not found")
+    db.delete(db_hazard)
+    db.commit()
+    return {"status": "success", "message": f"Hazard {hazard_id} deleted successfully"}
+
+@app.post("/hazards/{hazard_id}/like")
+def like_hazard(hazard_id: int, db: Session = Depends(get_db)):
+    db_hazard = db.query(models.Hazard).filter(models.Hazard.id == hazard_id).first()
+    if not db_hazard:
+        raise HTTPException(status_code=404, detail="Hazard not found")
+    db_hazard.recurrence_count = (db_hazard.recurrence_count or 0) + 1
+    db.commit()
+    db.refresh(db_hazard)
+    return {"status": "success", "likes": db_hazard.recurrence_count}
+

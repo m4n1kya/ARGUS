@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MapPin, Navigation, Crosshair, StopCircle, Layers, Map as MapIcon, Image as ImageIcon } from 'lucide-react';
+import { ReportStorageService } from '../services/reportStorage';
 
 const CESIUM_VERSION = '1.119';
 const CESIUM_CDN_BASE = `https://cdn.jsdelivr.net/npm/cesium@${CESIUM_VERSION}/Build/Cesium`;
@@ -178,14 +179,38 @@ export default function CesiumViewer() {
 
         const API_BASE =
           process.env.NEXT_PUBLIC_API_BASE || 'https://argus-aybo.onrender.com';
-        const response = await fetch(`${API_BASE}/hazards`);
-        const hazards = await response.json();
+        
+        let hazards: any[] = [];
+        try {
+          const response = await fetch(`${API_BASE}/hazards`);
+          if (response.ok) {
+            hazards = await response.json();
+          }
+        } catch {
+          // Backend may be offline; fallback to local reports below
+        }
+
+        // Merge local verified reports
+        const localReports = ReportStorageService.getReports();
+        const existingIds = new Set(hazards.map((h: any) => h.id.toString()));
+        localReports.forEach(r => {
+          if (!existingIds.has(r.id)) {
+            hazards.push({
+              id: r.id,
+              lat: r.lat,
+              lon: r.lon,
+              hazard_class: r.hazard_class,
+              status: r.ai_detection?.status || 'reported'
+            });
+          }
+        });
 
         const v = viewerRef.current;
+        if (!v || !v.entities) return;
 
         // Remove old hazard entities
         const toRemove = v.entities.values.filter((e) =>
-          e.id.startsWith('hazard-')
+          e.id && e.id.startsWith('hazard-')
         );
         toRemove.forEach((e) => v.entities.remove(e));
 

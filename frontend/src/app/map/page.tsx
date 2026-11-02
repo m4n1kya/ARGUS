@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import GlobalNavbar from '../components/GlobalNavbar';
 
 // Dynamically import the Leaflet map with SSR disabled to prevent 'window is not defined' errors
 const ArgusMap = dynamic(() => import('../components/map/ArgusLeafletMap'), {
@@ -28,7 +27,6 @@ export default function MapPage() {
 
   return (
     <main className="h-screen w-full bg-black relative overflow-hidden" style={{ paddingTop: 48 }}>
-      <GlobalNavbar />
       <div className="absolute inset-0 top-[48px]">
         <ArgusMap />
       </div>

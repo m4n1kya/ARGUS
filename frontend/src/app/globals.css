@@ -1,8 +1,61 @@
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════════
+   SYNAPTICA & ARGUS DESIGN SYSTEM
+   Exact Synaptica Color Palette & Glassmorphic Surfaces
+   ══════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 1. Dark Canvas & Background Layers */
+  --canvas-pure: #000000;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #121212;
+  --bg-tertiary: #1a1a1a;
+  --bg-elevated: #242424;
+  --bg-hover: #2a2a2a;
+
+  /* 2. Primary Accent (Minimalist Monochrome) */
+  --accent-primary: #ffffff;
+  --accent-light: #ffffff;
+  --accent-dark: #e2e8f0;
+  --accent-subtle: rgba(255, 255, 255, 0.15);
+  --accent-glow: rgba(255, 255, 255, 0.30);
+
+  /* 3. Glassmorphic Surface System */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  --glass-bg-active: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-blur: blur(20px);
+
+  /* 4. Typography Palette */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: #60a5fa;
+  --text-inverse: #0f172a;
+
+  /* 5. Semantic AI & Epistemic Relationship Palette */
+  --color-corroborate: #90CAF9;
+  --color-corroborate-bg: rgba(144, 202, 249, 0.08);
+  --color-corroborate-border: rgba(144, 202, 249, 0.25);
+
+  --color-contradict: #2196F3;
+  --color-contradict-bg: rgba(33, 150, 243, 0.08);
+  --color-contradict-border: rgba(33, 150, 243, 0.25);
+
+  --color-contextual: #E3F2FD;
+  --color-contextual-bg: rgba(227, 242, 253, 0.08);
+  --color-contextual-border: rgba(227, 242, 253, 0.25);
+
+  --color-failure: #1565C0;
+  --color-failure-bg: rgba(21, 101, 192, 0.20);
+  --color-failure-border: rgba(21, 101, 192, 0.50);
+
+  /* Base theme variables */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
@@ -12,15 +65,142 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Synaptica Glass Components & Utility Classes ─────────────── */
+
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.glass-card-static {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.glass-panel {
+  background: rgba(18, 18, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ── Synaptica Button Styles ─────────────────────────────────── */
+
+.btn-primary {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 0 2px 14px rgba(255, 255, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(255, 255, 255, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-glass {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  color: #ffffff;
+}
+
+/* ── Glow Borders & Badges ───────────────────────────────────── */
+
+.glow-border {
+  position: relative;
+}
+
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.badge-corroborate {
+  background: var(--color-corroborate-bg);
+  border: 1px solid var(--color-corroborate-border);
+  color: var(--color-corroborate);
+}
+
+.badge-contradict {
+  background: var(--color-contradict-bg);
+  border: 1px solid var(--color-contradict-border);
+  color: var(--color-contradict);
+}
+
+.badge-contextual {
+  background: var(--color-contextual-bg);
+  border: 1px solid var(--color-contextual-border);
+  color: var(--color-contextual);
+}
+
+.badge-failure {
+  background: var(--color-failure-bg);
+  border: 1px solid var(--color-failure-border);
+  color: var(--color-failure);
+}
+
+/* ── Custom Scrollbars ───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }

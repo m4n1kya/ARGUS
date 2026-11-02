@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { DEFAULT_MAP_PROVIDER } from '../../services/mapProvider';
 import { IncidentAdapter, ArgusIncident } from '../../services/incidentAdapter';
+import { ReportStorageService } from '../../services/reportStorage';
 import { GeocodeResult } from '../../services/geocodingProvider';
 
 import IncidentLayer from './IncidentLayer';
@@ -262,7 +263,27 @@ export default function ArgusLeafletMap() {
   const [flyToLocation,   setFlyToLocation]   = useState<GeocodeResult | null>(null);
 
   useEffect(() => {
-    IncidentAdapter.fetchAllIncidents().then(setIncidents);
+    const localReports: ArgusIncident[] = ReportStorageService.getReports().map(r => ({
+      id: r.id,
+      latitude: r.lat,
+      longitude: r.lon,
+      type: r.hazard_class,
+      severity: r.ai_detection?.severity_level || 'HIGH',
+      confidence: (r.ai_detection?.confidence || 95) / 100,
+      status: r.ai_detection?.status || 'reported',
+      timestamp: new Date(r.created_at),
+      source: 'AI' as const,
+      imageUrl: r.image_url,
+      recurrenceCount: r.likes_count || 1
+    }));
+
+    IncidentAdapter.fetchAllIncidents().then(apiIncidents => {
+      const ids = new Set(apiIncidents.map(i => i.id));
+      const combined = [...apiIncidents, ...localReports.filter(l => !ids.has(l.id))];
+      setIncidents(combined);
+    }).catch(() => {
+      setIncidents(localReports);
+    });
   }, []);
 
   const handleStartTracking = () => {
