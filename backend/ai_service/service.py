@@ -199,8 +199,19 @@ class UnifiedAiService:
         # 6. Format benchmark snapshot
         benchmark_snapshot = entry.benchmark_metrics.dict()
 
-        # 7. Release working memory back to OS immediately
-        release_system_memory("post_verification")
+        # 7. Low-memory cloud container enforcement (Render free tier <512MB):
+        # Evict the model immediately after inference so RAM instantly drops back to baseline (~75MB)
+        is_cloud_constrained = bool(os.environ.get("RENDER") or os.environ.get("LOW_MEMORY_MODE", "true").lower() == "true")
+        if is_cloud_constrained:
+            try:
+                adapter.unload_model()
+            except Exception as un_err:
+                logger.debug("Model unload error: %s", un_err)
+            with self.inference_lock:
+                self.model_cache.clear()
+            release_system_memory("post_verification_cloud_drain")
+        else:
+            release_system_memory("post_verification")
 
         return {
             "model_id": entry.model_id,
