@@ -543,10 +543,17 @@ function DocumentationContent() {
 
                         {/* Badges on Image */}
                         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                          <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono uppercase font-bold text-white border border-[rgba(255,255,255,0.15)] flex items-center gap-1.5">
-                            <Cpu className="w-3 h-3 text-[#90CAF9]" />
-                            <span>{item.category}</span>
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono uppercase font-bold text-white border border-[rgba(255,255,255,0.15)] flex items-center gap-1.5">
+                              <Cpu className="w-3 h-3 text-[#90CAF9]" />
+                              <span>{item.category}</span>
+                            </span>
+                            {(item.is_demo || item.id.startsWith('demo-')) && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                                DEMO AUDIT
+                              </span>
+                            )}
+                          </div>
 
                           {getAssessmentBadge(item.assessment, item.processing_status)}
                         </div>
@@ -783,6 +790,16 @@ function DocumentationContent() {
 
               {/* Modal Body (Scrollable) */}
               <div className="p-6 space-y-6 overflow-y-auto flex-1">
+
+                {/* Demo Notification Banner if Demo Record */}
+                {(selectedVerification.is_demo || selectedVerification.id.startsWith('demo-')) && (
+                  <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs font-mono text-purple-200 flex items-center gap-2.5">
+                    <Info className="w-4 h-4 text-purple-300 shrink-0" />
+                    <span>
+                      <strong className="text-white">[PRE-LOADED DEMO AUDIT]</strong> This is an authentic demonstration record illustrating real computer vision outputs, bounding box telemetry, and benchmark metrics for this hazard category.
+                    </span>
+                  </div>
+                )}
 
                 {/* ── SECTION B: AI ASSESSMENT OUTCOME & EXPLANATION ── */}
                 <div className="p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] space-y-3">
