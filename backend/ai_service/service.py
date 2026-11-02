@@ -29,6 +29,17 @@ from ai_service.annotator import draw_bounding_boxes
 logger = logging.getLogger("argus.ai_service")
 
 
+DEFAULT_WEIGHTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "weights")
+
+CHECKPOINT_DIRECT_URLS = {
+    "pothole_peterhdd_yolov8s.pt": "https://huggingface.co/peterhdd/pothole-detection-yolov8/resolve/main/best.pt",
+    "construction_hasnatz_rf_detr.onnx": "https://huggingface.co/hasnatz/v-safe-rf-detr/resolve/main/inference_model.onnx",
+    "waste_siyad23_yolo11n.pt": "https://raw.githubusercontent.com/siyad23/waste-sorting-model/main/weights/best.pt",
+    "indian_road_hazard_yolo11n.onnx": "https://raw.githubusercontent.com/VivekVagale/road-hazard/gh-pages/models/yolo11n.onnx",
+    "powerline_mtyolo_nano.pt": "https://raw.githubusercontent.com/phd-benel/PowerLine-MTYOLO/main/PowerLine-MTYOLO-NANO-150Epochs.pt",
+}
+
+
 class UnifiedAiService:
     """Singleton service managing models, hardware devices, and inference."""
 
@@ -42,11 +53,16 @@ class UnifiedAiService:
                 cls._instance._initialized = False
             return cls._instance
 
-    def __init__(self, weights_dir: str = "backend/ai_service/weights"):
+    def __init__(self, weights_dir: Optional[str] = None):
         if getattr(self, "_initialized", False):
             return
 
-        self.weights_dir = os.path.abspath(weights_dir)
+        if weights_dir is None:
+            self.weights_dir = DEFAULT_WEIGHTS_DIR
+        else:
+            self.weights_dir = os.path.abspath(weights_dir)
+        os.makedirs(self.weights_dir, exist_ok=True)
+
         self.device = self._detect_device()
         self.model_cache: Dict[str, BaseModelAdapter] = {}
         self.inference_lock = threading.Lock()
@@ -68,7 +84,7 @@ class UnifiedAiService:
         return "cpu"
 
     def get_adapter(self, model_id: str) -> BaseModelAdapter:
-        """Lazily load and cache model adapters."""
+        """Lazily load and cache model adapters with auto-download fallback."""
         with self.inference_lock:
             if model_id in self.model_cache:
                 return self.model_cache[model_id]
@@ -78,6 +94,26 @@ class UnifiedAiService:
                 raise ValueError(f"Model ID '{model_id}' not found in ARGUS registry.")
 
             checkpoint_path = os.path.join(self.weights_dir, entry.checkpoint_filename)
+
+            # Auto-download checkpoint on the fly if missing (crucial for cloud deployments like Render)
+            if not os.path.exists(checkpoint_path) and entry.checkpoint_filename in CHECKPOINT_DIRECT_URLS:
+                url = CHECKPOINT_DIRECT_URLS[entry.checkpoint_filename]
+                logger.info("Checkpoint %s missing on disk. Downloading from %s...", entry.checkpoint_filename, url)
+                temp_path = checkpoint_path + ".tmp"
+                try:
+                    import urllib.request
+                    req = urllib.request.Request(url, headers={"User-Agent": "ARGUS-Vision-Inference/2.0"})
+                    with urllib.request.urlopen(req, timeout=180) as resp, open(temp_path, "wb") as f_out:
+                        while chunk := resp.read(65536):
+                            f_out.write(chunk)
+                    if os.path.exists(checkpoint_path):
+                        os.remove(checkpoint_path)
+                    os.rename(temp_path, checkpoint_path)
+                    logger.info("Successfully downloaded %s (%d bytes).", entry.checkpoint_filename, os.path.getsize(checkpoint_path))
+                except Exception as dl_err:
+                    logger.error("Failed to download missing checkpoint %s: %s", entry.checkpoint_filename, dl_err)
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
 
             # Route to appropriate adapter class
             if entry.model_id == "pothole_peterhdd_yolov8s":

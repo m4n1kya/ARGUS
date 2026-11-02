@@ -22,6 +22,9 @@ os.makedirs(WEIGHTS_DIR, exist_ok=True)
 CHECKPOINT_URLS = {
     "pothole_peterhdd_yolov8s.pt": "https://huggingface.co/peterhdd/pothole-detection-yolov8/resolve/main/best.pt",
     "construction_hasnatz_rf_detr.onnx": "https://huggingface.co/hasnatz/v-safe-rf-detr/resolve/main/inference_model.onnx",
+    "waste_siyad23_yolo11n.pt": "https://raw.githubusercontent.com/siyad23/waste-sorting-model/main/weights/best.pt",
+    "indian_road_hazard_yolo11n.onnx": "https://raw.githubusercontent.com/VivekVagale/road-hazard/gh-pages/models/yolo11n.onnx",
+    "powerline_mtyolo_nano.pt": "https://raw.githubusercontent.com/phd-benel/PowerLine-MTYOLO/main/PowerLine-MTYOLO-NANO-150Epochs.pt",
 }
 
 

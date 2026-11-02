@@ -404,7 +404,8 @@ def list_models():
 @app.get("/models/health")
 def model_health():
     """Check readiness of local model checkpoints, device availability, and weights integrity."""
-    weights_dir = os.path.abspath("backend/ai_service/weights")
+    ai_service = UnifiedAiService()
+    weights_dir = ai_service.weights_dir
     results = []
 
     for entry in MODEL_REGISTRY.values():
