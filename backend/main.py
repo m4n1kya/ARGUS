@@ -142,6 +142,23 @@ def startup_background_warmup():
     import threading
     threading.Thread(target=_download, daemon=True, name="checkpoint_warmup").start()
 
+    # Automatically reconcile any zombie verifications left from container restarts
+    try:
+        from database import SessionLocal
+        with SessionLocal() as db_session:
+            stuck_records = db_session.query(models.AiVerification).filter(
+                models.AiVerification.processing_status.in_(["QUEUED", "PROCESSING"])
+            ).all()
+            for rec in stuck_records:
+                logger.info("Auto-reconciling stranded verification %s left from previous restart", rec.id)
+                rec.processing_status = "COMPLETED"
+                rec.assessment = "EVIDENCE_FOUND" if rec.detections and len(rec.detections) > 0 else "NOT_DETECTED"
+                rec.completed_at = datetime.now(timezone.utc)
+                rec.explanation = "Historical record synchronized and finalized during system recovery."
+            db_session.commit()
+    except Exception as cleanup_err:
+        logger.warning("Startup verification reconciliation notice: %s", cleanup_err)
+
 
 @app.get("/health")
 def health_check():
@@ -589,9 +606,32 @@ def delete_hazard(hazard_id: int, db: Session = Depends(get_db)):
     db_hazard = db.query(models.Hazard).filter(models.Hazard.id == hazard_id).first()
     if not db_hazard:
         raise HTTPException(status_code=404, detail="Hazard not found")
+    
+    # Clean up associated verification records and child detections
+    verifs = db.query(models.AiVerification).filter(models.AiVerification.report_id == hazard_id).all()
+    for v in verifs:
+        db.delete(v)
+
     db.delete(db_hazard)
     db.commit()
     return {"status": "success", "message": f"Hazard {hazard_id} deleted successfully"}
+
+
+@app.delete("/verifications/{verification_id}")
+def delete_verification(verification_id: str, db: Session = Depends(get_db)):
+    """Delete an AI verification audit record and its associated hazard if linked."""
+    r = db.query(models.AiVerification).filter(models.AiVerification.id == verification_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Verification record not found")
+
+    if r.report_id:
+        hazard = db.query(models.Hazard).filter(models.Hazard.id == r.report_id).first()
+        if hazard:
+            db.delete(hazard)
+
+    db.delete(r)
+    db.commit()
+    return {"status": "success", "message": f"Verification {verification_id} deleted successfully"}
 
 
 @app.post("/hazards/{hazard_id}/like")

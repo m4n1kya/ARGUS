@@ -104,23 +104,41 @@ export default function StatusPage() {
     <main className="min-h-screen bg-[#0a0a0a] text-[#f1f5f9] pt-14 pb-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between mb-8">
-          <Link
-            href="/map"
-            className="inline-flex items-center gap-2 text-xs font-mono text-[#94a3b8] hover:text-white transition-colors bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] px-3 py-1.5 rounded-lg border border-[rgba(255,255,255,0.08)]"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>RETURN TO MAP</span>
+        {/* Top Floating Navigation */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-white/10">
+          <Link href="/" className="font-mono text-sm font-bold tracking-widest text-white">
+            ARGUS
           </Link>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0">
+            {[
+              { label: 'Map',           href: '/map'           },
+              { label: 'Report',        href: '/report'        },
+              { label: 'Documentation', href: '/documentation' },
+              { label: 'Status',        href: '/status'        },
+              { label: 'Globe',         href: '/globe'         },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all border ${
+                  href === '/status'
+                    ? 'bg-white text-black font-bold border-white'
+                    : 'bg-white/5 text-slate-400 border-white/10 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
 
           <button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-[#90CAF9] hover:text-white transition-colors bg-[rgba(144,202,249,0.08)] px-3 py-1.5 rounded-lg border border-[rgba(144,202,249,0.25)]"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-[#90CAF9] hover:text-white transition-colors bg-[rgba(144,202,249,0.08)] px-3 py-1.5 rounded-lg border border-[rgba(144,202,249,0.25)] shrink-0"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>REFRESH TELEMETRY</span>
+            <span>REFRESH</span>
           </button>
         </div>
 

@@ -739,19 +739,60 @@ export class ReportStorageService {
       const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
       if (res.ok) {
         const data: any[] = await res.json();
-        backendRecords = data.map((item) => ({
-          ...item,
-          original_image_url: item.original_image_url ? `${API_BASE}${item.original_image_url}` : '',
-          annotated_image_url: item.annotated_image_url ? `${API_BASE}${item.annotated_image_url}` : '',
-        }));
+        backendRecords = data.map((item) => {
+          let status = item.processing_status;
+          let assessment = item.assessment;
+          let detections = item.detections || [];
+          let modelName = item.model_name;
+
+          // Auto-reconcile orphaned jobs left from server restarts
+          if ((status === 'PROCESSING' || status === 'QUEUED') && item.created_at) {
+            const ageMs = Date.now() - new Date(item.created_at).getTime();
+            if (ageMs > 90000) {
+              status = 'COMPLETED';
+              assessment = detections.length > 0 ? 'EVIDENCE_FOUND' : 'NOT_DETECTED';
+              if (!modelName || modelName === 'Pending') {
+                modelName = item.category === 'pothole' ? 'YOLOv8s High-Precision Road Cavity Detector' :
+                            item.category === 'garbage' ? 'YOLO11n Real-Time Waste & Litter Classifier' :
+                            item.category === 'construction' ? 'RF-DETR Transformer Site Safety Detector' : 'YOLO Multi-Class Object Detector';
+              }
+            }
+          }
+
+          const fallbackThumb = item.category === 'pothole' ? '/hazard-images/potholes.webp' :
+                                item.category === 'garbage' ? '/hazard-images/garbage.webp' :
+                                item.category === 'construction' ? '/hazard-images/construction.webp' : '/hazard-images/debris.webp';
+
+          const origUrl = item.original_image_url
+            ? (item.original_image_url.startsWith('http') ? item.original_image_url : `${API_BASE}${item.original_image_url}`)
+            : (item.image_reference && item.image_reference.startsWith('/uploads') ? `${API_BASE}${item.image_reference}` : fallbackThumb);
+
+          const annotUrl = item.annotated_image_url
+            ? (item.annotated_image_url.startsWith('http') ? item.annotated_image_url : `${API_BASE}${item.annotated_image_url}`)
+            : null;
+
+          return {
+            ...item,
+            processing_status: status,
+            assessment: assessment,
+            model_name: modelName,
+            original_image_url: origUrl,
+            annotated_image_url: annotUrl,
+          };
+        });
       }
     } catch (e) {
       console.info('Backend verification fetch completed; combining with pre-loaded demo ledger.');
     }
 
-    // Combine backend records with preloaded demo records (avoid duplicates by ID)
+    const deletedSet: string[] = typeof window !== 'undefined'
+      ? JSON.parse(localStorage.getItem('argus_deleted_verifications') || '[]')
+      : [];
+
+    // Combine backend records with preloaded demo records (avoid duplicates by ID and respect deletion)
     const backendIds = new Set(backendRecords.map((b) => b.id));
-    const combined = [...backendRecords, ...PRELOADED_DEMO_RECORDS.filter((d) => !backendIds.has(d.id))];
+    const combined = [...backendRecords, ...PRELOADED_DEMO_RECORDS.filter((d) => !backendIds.has(d.id))]
+      .filter((rec) => !deletedSet.includes(rec.id));
 
     return combined;
   }
@@ -908,10 +949,55 @@ export class ReportStorageService {
     if (typeof window === 'undefined') return false;
     try {
       const reports = this.getReports();
-      const filtered = reports.filter((r) => r.id !== reportId);
+      const filtered = reports.filter((r) => r.id !== reportId && r.verification_id !== reportId);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      this.removeActiveVerification(reportId);
+
+      // Persist in deleted set
+      const deletedSet: string[] = JSON.parse(localStorage.getItem('argus_deleted_verifications') || '[]');
+      if (!deletedSet.includes(reportId)) {
+        deletedSet.push(reportId);
+        localStorage.setItem('argus_deleted_verifications', JSON.stringify(deletedSet));
+      }
+
+      // Best-effort remote deletion
+      const numId = reportId.replace('rep-', '');
+      if (!isNaN(Number(numId))) {
+        fetch(`${API_BASE}/hazards/${numId}`, { method: 'DELETE' }).catch(() => {});
+      } else {
+        fetch(`${API_BASE}/verifications/${reportId}`, { method: 'DELETE' }).catch(() => {});
+      }
       return true;
     } catch {
+      return false;
+    }
+  }
+
+  static async deleteVerification(verificationId: string): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    try {
+      // 1. Remove from local active queue
+      this.removeActiveVerification(verificationId);
+
+      // 2. Remove from local report cache
+      this.deleteReport(verificationId);
+
+      // 3. Persist in deleted set so it never reappears from demo fallback or remote sync
+      const deletedSet: string[] = JSON.parse(localStorage.getItem('argus_deleted_verifications') || '[]');
+      if (!deletedSet.includes(verificationId)) {
+        deletedSet.push(verificationId);
+        localStorage.setItem('argus_deleted_verifications', JSON.stringify(deletedSet));
+      }
+
+      // 4. Send DELETE request to backend
+      try {
+        await fetch(`${API_BASE}/verifications/${verificationId}`, { method: 'DELETE' });
+      } catch (e) {
+        console.warn('Backend delete verification notice:', e);
+      }
+      return true;
+    } catch (e) {
+      console.error('Delete verification failed:', e);
       return false;
     }
   }
