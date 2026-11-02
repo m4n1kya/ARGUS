@@ -65,7 +65,15 @@ class ConstructionHasnatAdapter(BaseModelAdapter):
         if self.device != "cpu" and "CUDAExecutionProvider" in ort.get_available_providers():
             providers.insert(0, "CUDAExecutionProvider")
 
-        self.session = ort.InferenceSession(self.checkpoint_path, providers=providers)
+        # Configure memory-conserving ONNX Runtime session for cloud containers (<512MB)
+        sess_options = ort.SessionOptions()
+        sess_options.enable_cpu_mem_arena = False  # Avoid pre-allocated tensor arenas
+        sess_options.intra_op_num_threads = 1
+        sess_options.inter_op_num_threads = 1
+        sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+
+        self.session = ort.InferenceSession(self.checkpoint_path, sess_options=sess_options, providers=providers)
         input_info = self.session.get_inputs()[0]
         # input shape is typically [1, 3, H, W]
         if len(input_info.shape) >= 4:
@@ -74,6 +82,13 @@ class ConstructionHasnatAdapter(BaseModelAdapter):
 
         self.is_loaded = True
         return True
+
+    def unload_model(self) -> None:
+        """Evict ONNX session from memory."""
+        self.session = None
+        self.is_loaded = False
+        import gc
+        gc.collect()
 
     def validate_model(self) -> bool:
         if not self.is_loaded:

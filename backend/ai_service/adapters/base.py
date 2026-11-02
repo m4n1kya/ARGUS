@@ -89,6 +89,11 @@ class BaseModelAdapter(ABC):
         """Load the model weights into memory/device."""
         pass
 
+    def unload_model(self) -> None:
+        """Unload model from memory and trigger GC."""
+        self.model = None
+        self.is_loaded = False
+
     @abstractmethod
     def validate_model(self) -> bool:
         """Validate model integrity, device placement, and inference readiness."""

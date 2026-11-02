@@ -57,6 +57,13 @@ class PowerLineMtyoloAdapter(BaseModelAdapter):
             self.is_loaded = True  # Adapter is operational in guard mode
             return True
 
+    def unload_model(self) -> None:
+        """Evict model from memory."""
+        self.model_instance = None
+        self.is_loaded = False
+        import gc
+        gc.collect()
+
     def validate_model(self) -> bool:
         return os.path.exists(self.checkpoint_path)
 

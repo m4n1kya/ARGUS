@@ -669,7 +669,7 @@ export class ReportStorageService {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/verifications/${verificationId}/status`, { timeout: 3500 } as any);
+      const res = await fetch(`${API_BASE}/verifications/${verificationId}/status`, { signal: AbortSignal.timeout(3500) });
       if (res.ok) return res.json();
     } catch (e) {
       console.warn('Status poll failed against backend:', e);

@@ -12,6 +12,10 @@ from typing import Optional, List
 from datetime import datetime, timezone
 from PIL import Image
 
+# Enforce strict thread and memory limits immediately before numerical libraries initialize
+from ai_service.memory_guard import apply_thread_and_runtime_limits, release_system_memory
+apply_thread_and_runtime_limits()
+
 import models
 import schemas
 from database import engine, get_db, IS_SQLITE
@@ -157,9 +161,20 @@ async def create_report(
             image_disk_path = os.path.join(UPLOAD_DIR, safe_basename)
             annotated_disk_path = os.path.join(ANNOTATED_DIR, f"annotated_{safe_basename}")
 
-            with open(image_disk_path, "wb") as buffer:
-                buffer.write(content)
+            # Save uploaded image with memory-conscious resolution clamping (max 1280px)
+            try:
+                with Image.open(io.BytesIO(content)) as uploaded_img:
+                    uploaded_img = uploaded_img.convert("RGB")
+                    if max(uploaded_img.size) > 1280:
+                        uploaded_img.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+                    uploaded_img.save(image_disk_path, format="JPEG", quality=85, optimize=True)
+            except Exception:
+                with open(image_disk_path, "wb") as buffer:
+                    buffer.write(content)
+
             image_filename = f"/uploads/{safe_basename}"
+            del content
+            release_system_memory("upload_processed")
 
     # Location geometry for PostGIS / text fallback for SQLite
     if not IS_SQLITE:

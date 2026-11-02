@@ -45,6 +45,13 @@ class WasteSiyad23Adapter(BaseModelAdapter):
         self.is_loaded = True
         return True
 
+    def unload_model(self) -> None:
+        """Evict PyTorch YOLO model from memory."""
+        self.yolo_model = None
+        self.is_loaded = False
+        import gc
+        gc.collect()
+
     def validate_model(self) -> bool:
         if not self.is_loaded:
             self.load_model()
@@ -127,14 +134,16 @@ class WasteSiyad23Adapter(BaseModelAdapter):
         t1 = time.perf_counter()
         preprocess_ms = (t1 - t0) * 1000.0
 
-        # 2. Forward pass
-        results = self.yolo_model.predict(
-            source=rgb_image,
-            imgsz=self.entry.input_resolution[0],
-            conf=threshold,
-            device=self.device,
-            verbose=False,
-        )
+        # 2. Forward pass with disabled autograd
+        import torch
+        with torch.inference_mode():
+            results = self.yolo_model.predict(
+                source=rgb_image,
+                imgsz=self.entry.input_resolution[0],
+                conf=threshold,
+                device=self.device,
+                verbose=False,
+            )
         t2 = time.perf_counter()
         inference_ms = (t2 - t1) * 1000.0
 

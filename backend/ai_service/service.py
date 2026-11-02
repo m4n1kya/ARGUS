@@ -25,6 +25,7 @@ from ai_service.adapters.construction_adapter import ConstructionHasnatAdapter
 from ai_service.adapters.powerline_adapter import PowerLineMtyoloAdapter
 from ai_service.decision_engine import analyze_image_quality, evaluate_verification
 from ai_service.annotator import draw_bounding_boxes
+from ai_service.memory_guard import release_system_memory
 
 logger = logging.getLogger("argus.ai_service")
 
@@ -84,10 +85,22 @@ class UnifiedAiService:
         return "cpu"
 
     def get_adapter(self, model_id: str) -> BaseModelAdapter:
-        """Lazily load and cache model adapters with auto-download fallback."""
+        """Lazily load and cache model adapters with auto-download fallback and strict single-model memory eviction."""
         with self.inference_lock:
             if model_id in self.model_cache:
                 return self.model_cache[model_id]
+
+            # Strict memory policy for 512MB cloud environments:
+            # Evict any other loaded models from RAM before loading a new one
+            for cached_id, cached_adapter in list(self.model_cache.items()):
+                logger.info("Evicting model %s from memory to maintain <512MB RAM budget", cached_id)
+                try:
+                    cached_adapter.unload_model()
+                except Exception as ev_err:
+                    logger.warning("Error unloading model %s: %s", cached_id, ev_err)
+                del self.model_cache[cached_id]
+
+            release_system_memory("pre_model_load")
 
             entry = get_model_entry(model_id)
             if not entry:
@@ -156,9 +169,11 @@ class UnifiedAiService:
 
         adapter = self.get_adapter(entry.model_id)
 
-        # 2. Open image and analyze quality heuristics
+        # 2. Open image and analyze quality heuristics (capping resolution to max 1280px)
         with Image.open(image_path) as raw_img:
             image = raw_img.convert("RGB")
+            if max(image.size) > 1280:
+                image.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
             quality = analyze_image_quality(image)
 
             # 3. Execute inference under concurrency lock
@@ -183,6 +198,9 @@ class UnifiedAiService:
 
         # 6. Format benchmark snapshot
         benchmark_snapshot = entry.benchmark_metrics.dict()
+
+        # 7. Release working memory back to OS immediately
+        release_system_memory("post_verification")
 
         return {
             "model_id": entry.model_id,

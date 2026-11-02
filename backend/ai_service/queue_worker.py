@@ -18,6 +18,7 @@ import models
 from database import SessionLocal
 from ai_service.service import UnifiedAiService
 from ai_service.model_registry import get_primary_model_for_category
+from ai_service.memory_guard import release_system_memory
 
 logger = logging.getLogger("argus.queue_worker")
 
@@ -102,6 +103,7 @@ class VerificationWorker:
         finally:
             with self.jobs_lock:
                 self.active_jobs.discard(verification_id)
+            release_system_memory("post_worker_job")
 
     def _execute_verification(
         self,
@@ -209,6 +211,7 @@ class VerificationWorker:
             raise
         finally:
             db.close()
+            release_system_memory("post_exec_verification")
 
     def _mark_failed(self, verification_id: str, exc: Exception):
         db: Session = SessionLocal()
@@ -225,6 +228,7 @@ class VerificationWorker:
             logger.error("Failed to mark verification %s as failed: %s", verification_id, e)
         finally:
             db.close()
+            release_system_memory("post_exec_verification")
 
 
 def get_verification_worker() -> VerificationWorker:

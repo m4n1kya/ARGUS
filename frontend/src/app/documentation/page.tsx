@@ -106,6 +106,16 @@ function DocumentationContent() {
 
       for (const item of currentActive) {
         try {
+          // Track poll counts to prevent infinite load on free-tier backend
+          const attempts = (item as any)._pollCount || 0;
+          if (attempts > 18) {
+            // After ~72s, finalize gracefully
+            ReportStorageService.removeActiveVerification(item.id);
+            setActiveVerifications((prev) => prev.filter((p) => p.id !== item.id));
+            continue;
+          }
+          (item as any)._pollCount = attempts + 1;
+
           const statusRes = await ReportStorageService.pollVerificationStatus(item.id);
 
           // Update stage & status
@@ -139,7 +149,8 @@ function DocumentationContent() {
       }
     };
 
-    pollingRef.current = setInterval(pollActive, 1500);
+    // Polite polling interval (4000ms) to conserve backend memory on Render free tier
+    pollingRef.current = setInterval(pollActive, 4000);
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
