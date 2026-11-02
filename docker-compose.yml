@@ -21,5 +21,24 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: argus_api
+    environment:
+      - DATABASE_URL=postgresql+psycopg://argus:argus_secure_password@db:5432/argus_db
+      - REDIS_URL=redis://redis:6379
+      - AI_DEVICE=cpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
+      - ./backend/ai_service/weights:/app/backend/ai_service/weights
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
 volumes:
   argus_db_data:

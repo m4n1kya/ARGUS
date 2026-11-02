@@ -28,6 +28,17 @@ Thumbs.db
 .env.test.local
 .env.production.local
 
+# Model weights and AI sources
+.ai-model-sources/
+*.pt
+*.pth
+*.onnx
+*.engine
+backend/ai_service/weights/
+backend/uploads/
+*.db
+backend/argus.db
+
 # IDEs
 .vscode/
 .idea/

@@ -88,44 +88,51 @@ export default function ReportPage() {
     );
   };
 
-  // Form Submit -> Runs AI Model Detection First
+  // Form Submit -> Runs Real AI Backend Ingestion (HTTP 202 Accepted)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
-    setVerifyProgress(5);
-    setVerifyStage('Initiating Neural Pipeline');
-    setVerifyDetail('Connecting to vision verification model...');
+    setVerifyProgress(25);
+    setVerifyStage('Transmitting Field Evidence');
+    setVerifyDetail('Dispatching optical capture to ARGUS AI backend...');
 
     try {
-      // 1. Run AI verification model pipeline
-      const aiResult = await ReportStorageService.runAiVerification(
-        file,
-        selectedHazard,
-        (pct, stage, detail) => {
-          setVerifyProgress(pct);
-          setVerifyStage(stage);
-          setVerifyDetail(detail);
-        }
-      );
-
-      // 2. Prepare upload record
       const defaultTitles: Record<HazardKey, string> = {
         pothole: 'Road Surface Crater Detected',
-        garbage: 'Uncollected Solid Waste Accumulation',
-        construction: 'Civil Excavation Warning',
+        garbage: 'Municipal Solid Waste Accumulation',
+        construction: 'Civil Excavation / Safety Hazard',
         debris: 'Transit Obstruction / Debris',
-        exposed_wire: 'Exposed Electrical Hazard'
+        exposed_wire: 'Exposed Electrical Line Hazard',
       };
 
-      const finalRecord: HazardUploadRecord = {
-        id: `rep-${Date.now()}`,
+      const finalTitle = title.trim() || defaultTitles[selectedHazard];
+      const finalDesc = description.trim() || `Field capture submitted for real-time AI computer vision verification.`;
+
+      // 1. Submit to backend API (returns HTTP 202 with verification_id)
+      const res = await ReportStorageService.submitReportToBackend({
         hazard_class: selectedHazard,
-        title: title.trim() || defaultTitles[selectedHazard],
-        description: description.trim() || `Visual verification confirmed genuine ${selectedHazard} at telemetry coordinates.`,
+        lat,
+        lon,
+        title: finalTitle,
+        description: finalDesc,
+        file,
+        user_id: 'user_current',
+      });
+
+      setVerifyProgress(75);
+      setVerifyStage('Asynchronous Verification Enqueued');
+      setVerifyDetail(`Ticket assigned: ${res.verification_id}`);
+
+      // 2. Prepare upload record
+      const finalRecord: HazardUploadRecord = {
+        id: `rep-${res.report_id}`,
+        hazard_class: selectedHazard,
+        title: finalTitle,
+        description: finalDesc,
         lat,
         lon,
         address_label: `Pilot Zone Grid (${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E)`,
-        image_url: previewUrl || (
+        image_url: res.image_url || previewUrl || (
           selectedHazard === 'pothole' ? '/hazard-images/potholes.webp' :
           selectedHazard === 'garbage' ? '/hazard-images/garbage.webp' :
           selectedHazard === 'construction' ? '/hazard-images/construction.webp' :
@@ -135,18 +142,19 @@ export default function ReportPage() {
         user_id: 'user_current',
         user_name: 'Command Operator (You)',
         is_mine: true,
-        likes_count: 1, // User's own verification
+        likes_count: 1,
         liked_by_me: true,
         comments: [],
-        ai_detection: aiResult
+        verification_id: res.verification_id,
       };
 
-      // 3. Save locally and sync to backend
+      // 3. Save locally and set active record
       ReportStorageService.saveReport(finalRecord);
       setVerifiedRecord(finalRecord);
-    } catch (err) {
-      console.error('AI Verification failed:', err);
-      alert('Verification pipeline encountered an error. Please try again.');
+      setIsVerifying(false);
+    } catch (err: any) {
+      console.error('Submission failed:', err);
+      alert(err.message || 'Verification pipeline encountered an error. Please try again.');
       setIsVerifying(false);
     }
   };
@@ -198,29 +206,29 @@ export default function ReportPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-white">AI Verification Approved</h2>
+                    <h2 className="text-xl font-bold text-white">Report Ingested & AI Pipeline Enqueued</h2>
                     <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#90CAF9] text-black">
-                      {verifiedRecord.ai_detection.confidence}% CONFIDENCE
+                      HTTP 202 ACCEPTED
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8] font-mono mt-0.5">
-                    Model: {verifiedRecord.ai_detection.model_version} • Status: {verifiedRecord.ai_detection.status}
+                    Category: {verifiedRecord.hazard_class.toUpperCase()} • Asynchronous Worker Pool Dispatched
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-[#94a3b8]">
-                ID: {verifiedRecord.id}
+              <span className="text-xs font-mono text-[#94a3b8] bg-[rgba(255,255,255,0.05)] px-2.5 py-1 rounded border border-[rgba(255,255,255,0.08)]">
+                Ticket: {verifiedRecord.verification_id || verifiedRecord.id}
               </span>
             </div>
 
-            {/* AI Diagnosis Details */}
+            {/* Ingestion & Pipeline Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
               <div className="space-y-3">
-                <div className="text-xs font-mono text-[#94a3b8] tracking-wider uppercase">Detected Classification</div>
+                <div className="text-xs font-mono text-[#94a3b8] tracking-wider uppercase">Hazard Metadata</div>
                 <div className="p-3.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-                  <div className="text-base font-semibold text-white">{verifiedRecord.ai_detection.detected_class}</div>
+                  <div className="text-base font-semibold text-white">{verifiedRecord.title}</div>
                   <div className="text-xs text-[#90CAF9] mt-1 font-mono">
-                    Severity: {verifiedRecord.ai_detection.severity_level} (Index: {verifiedRecord.ai_detection.severity_score})
+                    Classification Priority: {verifiedRecord.hazard_class}
                   </div>
                 </div>
 
@@ -229,18 +237,24 @@ export default function ReportPage() {
                   <span className="text-sm font-mono text-white">
                     {verifiedRecord.lat.toFixed(5)}° N, {verifiedRecord.lon.toFixed(5)}° E
                   </span>
-                  <span className="text-xs text-[#94a3b8] font-mono">Geotag Locked</span>
+                  <span className="text-xs text-[#90CAF9] font-mono">Telemetry Locked</span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <div className="text-xs font-mono text-[#94a3b8] tracking-wider uppercase">Optical Reasoning & Surface Physics</div>
-                <div className="p-3.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] text-xs text-[#cbd5e1] leading-relaxed">
-                  {verifiedRecord.ai_detection.inspection_notes}
+                <div className="text-xs font-mono text-[#94a3b8] tracking-wider uppercase">Live Verification Status</div>
+                <div className="p-3.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] text-xs text-[#cbd5e1] leading-relaxed space-y-2">
+                  <div className="flex items-center gap-2 text-[#90CAF9]">
+                    <Cpu className="w-4 h-4 animate-spin" />
+                    <span className="font-mono font-semibold">Active Computer Vision Service</span>
+                  </div>
+                  <p>
+                    Your photographic evidence has been stored and registered in the background worker queue. Real-time inference is running using the fine-tuned model checkpoint for {verifiedRecord.hazard_class}.
+                  </p>
                 </div>
                 <div className="text-[11px] font-mono text-[#90CAF9] flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Synthetic diffusion artifact probability: {verifiedRecord.ai_detection.surface_analysis.synthetic_artifact_probability}</span>
+                  <span>Ground-truth bounding boxes, metrics & audit snapshot available in Documentation</span>
                 </div>
               </div>
             </div>
@@ -248,12 +262,26 @@ export default function ReportPage() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-[rgba(255,255,255,0.08)]">
               <Link
-                href="/documentation"
+                href={`/documentation${verifiedRecord.verification_id ? `?highlight=${verifiedRecord.verification_id}` : ''}`}
                 className="w-full sm:w-auto flex-1 btn-primary py-3.5 px-6 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2"
               >
                 <FileText className="w-4 h-4" />
-                <span>VIEW IN DOCUMENTATION AUDIT</span>
+                <span>MONITOR & VIEW IN DOCUMENTATION AUDIT</span>
               </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setVerifiedRecord(null);
+                  setFile(null);
+                  setPreviewUrl(null);
+                  setTitle('');
+                  setDescription('');
+                }}
+                className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.12)] border border-[rgba(255,255,255,0.1)] text-xs font-mono text-white transition-colors"
+              >
+                SUBMIT ANOTHER INCIDENT
+              </button>
 
               <Link
                 href="/map"

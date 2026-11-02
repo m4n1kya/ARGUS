@@ -6,3 +6,9 @@ psycopg[binary]
 pydantic
 pydantic-settings
 python-multipart
+pillow
+opencv-python-headless
+onnxruntime
+torch
+torchvision
+ultralytics
