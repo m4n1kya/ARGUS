@@ -30,11 +30,10 @@ Thumbs.db
 
 # Model weights and AI sources
 .ai-model-sources/
-*.pt
 *.pth
-*.onnx
 *.engine
-backend/ai_service/weights/
+# Exclude giant model weights exceeding GitHub 100MB limit
+backend/ai_service/weights/construction_hasnatz_rf_detr.onnx
 backend/uploads/
 *.db
 backend/argus.db

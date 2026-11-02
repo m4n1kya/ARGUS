@@ -114,6 +114,35 @@ def validate_image_payload(image_bytes: bytes, filename: str) -> str:
 # -------------------------------------------------------------
 # Core Health & Readiness Endpoints
 # -------------------------------------------------------------
+@app.on_event("startup")
+def startup_background_warmup():
+    """Asynchronously warm up any missing checkpoints in a background daemon thread."""
+    def _download():
+        try:
+            ai_service = UnifiedAiService()
+            weights_dir = ai_service.weights_dir
+            from ai_service.service import CHECKPOINT_DIRECT_URLS
+            for fname, url in CHECKPOINT_DIRECT_URLS.items():
+                target_path = os.path.join(weights_dir, fname)
+                if not os.path.exists(target_path):
+                    logger.info("Background warming up missing model checkpoint %s...", fname)
+                    import urllib.request
+                    temp_p = target_path + ".tmp"
+                    req = urllib.request.Request(url, headers={"User-Agent": "ARGUS-Vision-Inference/2.0"})
+                    with urllib.request.urlopen(req, timeout=300) as resp, open(temp_p, "wb") as f_out:
+                        while chunk := resp.read(65536):
+                            f_out.write(chunk)
+                    if os.path.exists(target_path):
+                        os.remove(target_path)
+                    os.rename(temp_p, target_path)
+                    logger.info("Successfully background-warmed checkpoint %s", fname)
+        except Exception as e:
+            logger.warning("Background checkpoint warmup non-critical notice: %s", e)
+
+    import threading
+    threading.Thread(target=_download, daemon=True, name="checkpoint_warmup").start()
+
+
 @app.get("/health")
 def health_check():
     ai_service = UnifiedAiService()
