@@ -360,4 +360,16 @@
       left: 15vw;
     }
   }
+
+  .landing-upload-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: #000;
+    z-index: 20;
+    padding: 80px 20px 140px 20px;
+    font-size: 14px;
+    line-height: normal;
+    color: #f1f5f9;
+  }
 }

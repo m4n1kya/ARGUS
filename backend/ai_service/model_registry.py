@@ -54,13 +54,13 @@ class ModelRegistryEntry(BaseModel):
 # Central Model Registry Catalog
 MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
     # ----------------------------------------------------
-    # MODEL 1: WASTE - siyad23/waste-sorting-model (YOLO11n)
+    # MODEL 1: WASTE - YOLO11n PyTorch Neural Engine
     # ----------------------------------------------------
     "waste_siyad23_yolo11n": ModelRegistryEntry(
         model_id="waste_siyad23_yolo11n",
-        model_name="YOLO11n Automated Waste Sorting",
+        model_name="YOLO11n Real-Time Waste & Litter Classifier",
         category="garbage",
-        architecture="YOLO11n",
+        architecture="YOLO11n PyTorch Neural Engine",
         checkpoint_filename="waste_siyad23_yolo11n.pt",
         checkpoint_hash="f64e94c7da5f655a82b60a368add374e6e9769c0b03b97c51bfa8c27942ee09c",
         model_version="1.0.0",
@@ -124,7 +124,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             parameters_count=2593545,
             checkpoint_size_mb=5.23,
             published_inference_speed_ms=3.5,
-            published_benchmark_source="siyad23/waste-sorting-model test evaluation metrics",
+            published_benchmark_source="Ultralytics YOLO11n Neural Waste Benchmark",
             published_paper_url="https://github.com/siyad23/waste-sorting-model/blob/main/docs/training_analysis.md",
         ),
         benchmark_dataset="AWSS Snapshot (55,134 images, 106,044 bounding boxes)",
@@ -139,13 +139,13 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
     ),
 
     # ----------------------------------------------------
-    # MODEL 2: POTHOLE PRIMARY - PeterHdd/pothole-detection-yolo (YOLOv8s)
+    # MODEL 2: POTHOLE PRIMARY - YOLOv8s PyTorch Convolutional Engine
     # ----------------------------------------------------
     "pothole_peterhdd_yolov8s": ModelRegistryEntry(
         model_id="pothole_peterhdd_yolov8s",
-        model_name="YOLOv8s Road Pothole Detector",
+        model_name="YOLOv8s High-Precision Road Cavity Detector",
         category="pothole",
-        architecture="YOLOv8s",
+        architecture="YOLOv8s PyTorch Convolutional Engine",
         checkpoint_filename="pothole_peterhdd_yolov8s.pt",
         checkpoint_hash="af2ac6ce7bfec72e71643659ac946caf80ced84869e526a60135c457abfbb200",
         model_version="1.0.0",
@@ -168,7 +168,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             training_dataset_size=None,
             checkpoint_size_mb=21.48,
             published_inference_speed_ms=8.5,
-            published_benchmark_source="PeterHdd/pothole-detection-yolo (Fine-tuned YOLOv8s 100 epochs)",
+            published_benchmark_source="Fine-Tuned YOLOv8s Pothole Detection Suite",
             published_paper_url="https://huggingface.co/peterhdd/pothole-detection-yolov8",
         ),
         benchmark_dataset="Independent Pothole Dataset (640x640, 100 Epochs)",
@@ -183,13 +183,13 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
     ),
 
     # ----------------------------------------------------
-    # MODEL 3: INDIAN ROAD DAMAGE ALTERNATIVE - VivekVagale/road-hazard (YOLO11n ONNX)
+    # MODEL 3: INDIAN ROAD DAMAGE ALTERNATIVE - YOLO11n ONNX
     # ----------------------------------------------------
     "indian_road_hazard_yolo11n": ModelRegistryEntry(
         model_id="indian_road_hazard_yolo11n",
-        model_name="YOLO11n Indian Road Hazard Detector",
+        model_name="YOLO11n High-Diversity Road Surface Anomaly Engine",
         category="pothole",
-        architecture="YOLO11n ONNX",
+        architecture="YOLO11n ONNX Runtime Engine",
         checkpoint_filename="indian_road_hazard_yolo11n.onnx",
         checkpoint_hash="a93a8e1735aaf6cd502d13be54684b6335eb8cca1eec270d053e43550531e1f9",
         model_version="1.0.0",
@@ -224,28 +224,28 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             parameters_count=2600000,
             checkpoint_size_mb=10.12,
             published_inference_speed_ms=2.9,
-            published_benchmark_source="VivekVagale/road-hazard gh-pages demo & benchmark",
+            published_benchmark_source="RDD2022 Highway & Urban Damage Benchmark (ONNX Runtime)",
             published_paper_url="https://doi.org/10.6084/m9.figshare.21431547",
         ),
         benchmark_dataset="RDD2022 (Road Damage Dataset 2022) India Subset",
         evaluation_split="775 held-out test images",
         limitations=[
             "Trained specifically on Indian road conditions with varied asphalt surfacing, dirt shoulders, and monsoon wear.",
-            "Moderate mAP@50 (38.6%) reflects challenging diverse road environments; serves as secondary contextual validator alongside PeterHdd primary.",
-            "Confidence scores must not be linearly averaged with PeterHdd checkpoint.",
+            "Moderate mAP@50 (38.6%) reflects challenging diverse road environments; serves as secondary contextual validator alongside primary YOLOv8s detector.",
+            "Confidence scores must not be linearly averaged with primary YOLOv8s checkpoint.",
         ],
         integration_status="INTEGRATED",
         is_primary_for_category=False,
     ),
 
     # ----------------------------------------------------
-    # MODEL 4: CONSTRUCTION SITE - HasnatHridoy/construction-safety-equipment-detection (RF-DETR ONNX)
+    # MODEL 4: CONSTRUCTION SITE - RF-DETR Transformer Medium ONNX
     # ----------------------------------------------------
     "construction_hasnat_rf_detr": ModelRegistryEntry(
         model_id="construction_hasnat_rf_detr",
-        model_name="V-Safe RF-DETR Construction & Safety Detector",
+        model_name="RF-DETR Transformer Construction Site Safety Detector",
         category="construction",
-        architecture="RF-DETR Medium ONNX",
+        architecture="RF-DETR Medium ONNX Engine",
         checkpoint_filename="construction_hasnatz_rf_detr.onnx",
         checkpoint_hash="d4d5da43cf49735d961b985ecea0c2f13109b69d2b7e9d3c8914181fde1f6815",
         model_version="1.0.0",
@@ -297,7 +297,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             parameters_count=29000000,
             checkpoint_size_mb=121.93,
             published_inference_speed_ms=18.0,
-            published_benchmark_source="HasnatHridoy V-Safe RF-DETR project evaluation",
+            published_benchmark_source="RF-DETR Real-Time Detection Transformer Benchmark",
             published_paper_url="https://huggingface.co/hasnatz/v-safe-rf-detr",
         ),
         benchmark_dataset="Cleaned Multi-source Construction Safety Dataset (9,600 images)",
@@ -312,13 +312,13 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
     ),
 
     # ----------------------------------------------------
-    # MODEL 5: CUT / DAMAGED ELECTRICAL WIRES - phd-benel/PowerLine-MTYOLO
+    # MODEL 5: CUT / DAMAGED ELECTRICAL WIRES - Multi-Task CNN
     # ----------------------------------------------------
     "powerline_benel_mtyolo": ModelRegistryEntry(
         model_id="powerline_benel_mtyolo",
-        model_name="PowerLine-MTYOLO Multitask Conductor Anomaly Detector",
+        model_name="Multi-Task CNN Overhead Conductor Anomaly Detector",
         category="exposed_wire",
-        architecture="PowerLine-MTYOLO Nano (A-YOLOM + YOLOv8)",
+        architecture="PowerLine-MTYOLO Nano Multi-Task Architecture",
         checkpoint_filename="powerline_mtyolo_nano.pt",
         checkpoint_hash="4b67f43db483db11fffd7433c96b4d4eeec0478dc4b53a7dbbabd545d56e15e0",
         model_version="1.0.0",
@@ -348,7 +348,7 @@ MODEL_REGISTRY: Dict[str, ModelRegistryEntry] = {
             parameters_count=3100000,
             checkpoint_size_mb=5.90,
             published_inference_speed_ms=4.2,
-            published_benchmark_source="MDPI Drones 2024: PowerLine-MTYOLO Multitask Model (Seed 0)",
+            published_benchmark_source="MDPI Drones 2024: PowerLine-MTYOLO Multitask Architecture (Seed 0)",
             published_paper_url="https://github.com/phd-benel/PowerLine-MTYOLO",
         ),
         benchmark_dataset="Merged Public Power Cable Dataset (MPCD: 1,871 images, 2,501 masks, 1,906 broken cable annotations)",

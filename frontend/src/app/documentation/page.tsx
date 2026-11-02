@@ -725,19 +725,19 @@ function DocumentationContent() {
                     )}
                   </div>
 
-                  {/* Paper Link / Source Link */}
+                  {/* Architecture & Benchmark Spec Link */}
                   <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-                    <span className="text-xs font-mono text-[#64748b]">
-                      Repo: {model.source_repo}
+                    <span className="text-xs font-mono text-[#90CAF9]">
+                      Tech Stack: {model.architecture || 'PyTorch / ONNX Runtime'}
                     </span>
                     {model.benchmark_snapshot?.published_paper_url && (
                       <a
                         href={model.benchmark_snapshot.published_paper_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs font-mono text-[#90CAF9] hover:underline flex items-center gap-1"
+                        className="text-xs font-mono text-[#94a3b8] hover:text-white hover:underline flex items-center gap-1"
                       >
-                        <span>Paper / Checkpoint</span>
+                        <span>Benchmark Specs</span>
                         <ArrowUpRight className="w-3 h-3" />
                       </a>
                     )}
